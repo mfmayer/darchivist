@@ -2,65 +2,75 @@ package api
 
 import (
 	"encoding/json"
-	"flag"
 	"io/ioutil"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
+	"github.com/mfmayer/darchivist/internal/arc"
 	"github.com/mfmayer/darchivist/internal/log"
 )
 
-var _archivePath *string //= flag.String("path", "~/Documents", "Path to the documents archive")
+type getHandleFunc func() (rs *response, code int)
+type postHandleFunc func(rq *request) (rs *response, code int)
 
-func init() {
-	userHomeDir, _ := os.UserHomeDir()
-	userHomeDir += "/Documents"
-	_archivePath = flag.String("path", userHomeDir, "Path to the documents archive")
+func getHandler(handleFunc getHandleFunc) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rsObject, code := handleFunc()
+		if code != 200 {
+			statusText := http.StatusText(code)
+			if statusText == "" {
+				statusText = "Unknown API error"
+			}
+			http.Error(w, statusText, code)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(code)
+		json.NewEncoder(w).Encode(rsObject)
+	}
 }
 
-func archivePath(w http.ResponseWriter, r *http.Request) {
-	response := map[string]interface{}{
-		"archivePath": *_archivePath,
+func postHandler(handleFunc postHandleFunc) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rqBody, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		if err != nil {
+			log.Error.Printf("Error reading body: %v", err)
+			http.Error(w, "can't read body", http.StatusBadRequest)
+			return
+		}
+		rq := &request{}
+		if err := json.Unmarshal(rqBody, rq); err != nil {
+			log.Error.Printf("Error unmarshalling body: %v", err)
+			http.Error(w, "can't unmarshal body", http.StatusBadRequest)
+			return
+		}
+		// rs, code := handleFunc(rq)
+		rs, code := handleFunc(rq)
+		if code != 200 {
+			statusText := http.StatusText(code)
+			if statusText == "" {
+				statusText = "Unknown API error"
+			}
+			http.Error(w, statusText, code)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(code)
+		json.NewEncoder(w).Encode(rs)
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
 }
 
-func version(w http.ResponseWriter, r *http.Request) {
-	response := map[string]interface{}{
-		"version": "0.0.1",
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+type response struct {
+	Title       string   `json:"title,omitempty"`
+	Version     string   `json:"version,omitempty"`
+	ArchivePath string   `json:"archivePath,omitempty"`
+	Tags        []string `json:"tags,omitempty"`
 }
 
-type user struct {
-	Name string `json:"name"`
-}
-
-func setName(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Error.Printf("Error reading body: %v", err)
-		http.Error(w, "can't read body", http.StatusBadRequest)
-		return
-	}
-	var u user
-	if err := json.Unmarshal(body, &u); err != nil {
-		log.Error.Printf("Error unmarshalling body: %v", err)
-		http.Error(w, "can't unmarshal body", http.StatusBadRequest)
-		return
-	}
-	response := map[string]interface{}{
-		"message": "hello " + u.Name + ", let's go with vue!",
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+type request struct {
+	TagsFilter string `json:"tagsFilter,omitempty"`
 }
 
 // InstallAPI installs the api handler functions
@@ -68,7 +78,21 @@ func InstallAPI(r chi.Router) {
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"*"}, // consider to allow specific origin hosts only
 	}))
-	r.Get("/archivePath", archivePath)
-	r.Get("/version", version)
-	r.Post("/setName", setName)
+	r.Get("/info", getHandler(func() (rs *response, code int) {
+		rs = &response{
+			Title:       "DArchivist",
+			Version:     "v0.0.1",
+			ArchivePath: arc.Path(),
+			Tags:        arc.Tags(""),
+		}
+		code = http.StatusOK
+		return
+	}))
+	r.Post("/tags", postHandler(func(rq *request) (rs *response, code int) {
+		rs = &response{
+			Tags: arc.Tags(rq.TagsFilter),
+		}
+		code = http.StatusOK
+		return
+	}))
 }

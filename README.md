@@ -1,6 +1,6 @@
 # Darchivist
 
-TODO
+TODO: Describe Software
 
 ## Getting started
 
