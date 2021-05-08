@@ -2,22 +2,30 @@ import { InitAPI } from './_api.js'
 var apiURL = "../api/"
 const API = InitAPI(apiURL)
 
-// import { Tagslist } from './components/tagslist.js'
-// Tagslist.setAPI(API)
+import { Taglist } from './components/taglist.js'
+Taglist.setAPI(API)
+import { MainMenu } from './components/mainmenu.js'
+MainMenu.setAPI(API)
 // import { MainTemplate } from './templates/main-template.js'
+
+Quasar.lang.set(Quasar.lang.de)
 
 var app = new Vue({
   el: '#q-app',
   components: {
+    'tag-list': Taglist,
+    'main-menu': MainMenu
     // 'tags-list': Tagslist,
   },
   data: {
     showDrawer: true,
+    languages: ["de"],
+    currentLanguage: "",
     title: "",
     version: "",
     archivePath: "",
     tagfilter: "",
-    tags: ["test1", "test2"],
+    // tags: ["test1", "test2"],
   },
   methods: {
     apiCallFailed: function (error) {
@@ -29,8 +37,8 @@ var app = new Vue({
           app.title = result.title
           app.version = result.version
           app.archivePath = result.archivePath
-          app.tags = result.tags
-
+          // app.tags = result.tags
+          // Taglist.tags = result.tags
         }).catch(app.apiCallFailed)
     },
     refreshTags: function () {
@@ -46,45 +54,59 @@ var app = new Vue({
   
     <q-header bordered class="bg-primary text-white">
       <q-toolbar>
+  
         <q-btn dense flat round icon="menu" @click="showDrawer = !showDrawer"></q-btn>
         <q-toolbar-title>
-          <q-icon name="folder"></q-icon>
-          {{archivePath}}
-          <q-badge align="top" color="green">{{version}}</q-badge>
+  
         </q-toolbar-title>
-        <q-btn flat round dense icon="more_vert" @click="getInfo"></q-btn>
+        <!-- <q-select v-model="currentLanguage" :options="languages" borderless>
+                                                                                            <template v-slot:prepend>
+                                                                                              <q-icon name="language" />
+                                                                                            </template>
+                                                                                          </q-select> -->
+        <!-- <div class="self-stretch"> -->
+        <!-- <q-btn-dropdown flat class="self-stretch">
+              <q-list>
+                <q-item clickable v-close-popup>
+                  <q-item-section>
+                    <q-item-label>Photos</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown> -->
+        <!-- <q-btn flat round dense icon="more_vert" @click="getInfo"></q-btn> -->
+        <main-menu></main-menu>
+        <!-- </div> -->
+  
       </q-toolbar>
     </q-header>
   
     <q-drawer show-if-above v-model="showDrawer" side="left" bordered>
-      <!-- <tags-list @name-set="setMessage"></tags-list> -->
+      <tag-list></tag-list>
+      <!-- <div class="absolute-top bg-transparent" style="height: 150px">
+                                      <q-input standout square dense v-model="tagfilter" label="Filter" @input="refreshTags" class="full-width">
+                                        <template v-slot:append>
+                                          <q-btn round dense flat icon="filter_alt" @click="refreshTags" />
+                                        </template>
+                                      </q-input>
+                                    </div>
+                                
+                                    <q-scroll-area id="scroll-area-with-virtual-scroll-1"
+                                      style="height: calc(100% - 40px); margin-top: 40px; border-right: 1px solid #ddd">
+                                      <q-virtual-scroll :items="tags" scroll-target="#scroll-area-with-virtual-scroll-1 > .scroll"
+                                        :virtual-scroll-item-size="48">
+                                        <template v-slot="{item, index}">
+                                          <q-item :key="item" v-ripple>
+                                            <q-item-section>
+                                              <q-item-label>
+                                                {{item}}
+                                              </q-item-label>
+                                            </q-item-section>
+                                          </q-item>
+                                        </template>
+                                      </q-virtual-scroll>
+                                    </q-scroll-area> -->
   
-      <div class="absolute-top bg-transparent" style="height: 150px">
-        <q-input standout square dense v-model="tagfilter" label="Filter" @keyup.enter="refreshTags" class="full-width">
-          <template v-slot:append>
-            <q-btn round dense flat icon="filter_alt" @click="refreshTags" />
-          </template>
-        </q-input>
-      </div>
-  
-      <q-scroll-area id="scroll-area-with-virtual-scroll-1"
-        style="height: calc(100% - 40px); margin-top: 40px; border-right: 1px solid #ddd">
-        <q-virtual-scroll :items="tags" scroll-target="#scroll-area-with-virtual-scroll-1 > .scroll"
-          :virtual-scroll-item-size="48">
-          <template v-slot="{item, index}">
-            <q-item :key="item" v-ripple>
-              <q-item-section>
-                <q-item-label>
-                  {{item}}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <!-- <q-checkbox v-model="item.active"></q-checkbox> -->
-              </q-item-section>
-            </q-item>
-          </template>
-        </q-virtual-scroll>
-      </q-scroll-area>
     </q-drawer>
   
   

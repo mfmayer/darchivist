@@ -63,10 +63,12 @@ func postHandler(handleFunc postHandleFunc) func(w http.ResponseWriter, r *http.
 }
 
 type response struct {
-	Title       string   `json:"title,omitempty"`
-	Version     string   `json:"version,omitempty"`
-	ArchivePath string   `json:"archivePath,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
+	Title           string   `json:"title,omitempty"`
+	Version         string   `json:"version,omitempty"`
+	ArchivePath     string   `json:"archivePath,omitempty"`
+	CurrentLanguage string   `json:"currentLanguage,omitempty"`
+	Languages       []string `json:"languages,omitempty"`
+	Tags            []string `json:"tags,omitempty"`
 }
 
 type request struct {
@@ -83,7 +85,7 @@ func InstallAPI(r chi.Router) {
 			Title:       "DArchivist",
 			Version:     "v0.0.1",
 			ArchivePath: arc.Path(),
-			Tags:        arc.Tags(""),
+			// Tags:        arc.Tags(""),
 		}
 		code = http.StatusOK
 		return
