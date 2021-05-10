@@ -15,39 +15,61 @@ const Taglist = {
   },
   methods: {
     apiCallFailed: function (error) {
-      app.$q.notify('Looks like there was an API problem: ' + error)
+      this.$q.notify('Looks like there was an API problem: ' + error)
     },
-    refreshTags: function () {
-      var rq = { tagsFilter: this.tagfilter }
-      API.post("tags", rq).then(result => {
-        Object.freeze(result.tags)
-        this.tags = result.tags
-      }).catch(this.apiCallFailed)
-    },
+    // refreshTags: function () {
+    //   var rq = { tagsFilter: this.tagfilter }
+    //   API.post("tags", rq).then(result => {
+    //     Object.freeze(result.tags)
+    //     this.tags = result.tags
+    //   }).catch(this.apiCallFailed)
+    // },
+  },
+  watch: {
+    tagfilter: {
+      immediate: true,
+      handler (newVal, oldVal) {
+        var rq = { tagsFilter: newVal }
+        API.post("tags", rq).then(result => {
+          Object.freeze(result.tags)
+          this.tags = result.tags
+
+        }).catch(this.apiCallFailed)
+      }
+    }
   },
   mounted: function () {
-    this.refreshTags()
   },
   template: String.raw`
   <div class="fit scroll">
-    <div class="absolute-top bg-transparent" style="height: 150px">
-      <q-input standout square dense v-model="tagfilter" label="Filter" @input="refreshTags" class="full-width">
-        <template v-slot:append>
-          <q-btn round dense flat icon="filter_alt" @click="refreshTags" />
+    <div class="absolute-top bg-primary row items-center" style="height: 50px">
+      <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
+        <template v-slot:prepend>
+          <q-icon name="filter_alt"></q-icon>
         </template>
+        <!-- <template v-slot:append>
+                                                                                                            <q-icon v-if="tagfilter !== ''" name="clear" class="cursor-pointer" @click="tagfilter = ''" />
+                                                                                                          </template> -->
       </q-input>
     </div>
   
     <q-scroll-area id="scroll-area-with-virtual-scroll-1"
-      style="height: calc(100% - 40px); margin-top: 40px; border-right: 1px solid #ddd">
+      style="height: calc(100% - 50px); margin-top: 50px; border-right: 1px solid #ddd">
       <q-virtual-scroll :items="tags" scroll-target="#scroll-area-with-virtual-scroll-1 > .scroll"
         :virtual-scroll-item-size="48">
         <template v-slot="{item, index}">
-          <q-item :key="item" v-ripple>
+          <q-item :key="item" clickable>
+            <q-popup-edit dense v-model="item">
+              <q-input v-model="item" dense autofocus />
+            </q-popup-edit>
             <q-item-section>
-              <q-item-label>
+              <q-item-label lines="1">
                 {{item}}
               </q-item-label>
+            </q-item-section>
+            <q-item-section clickable side>
+              <q-btn flat round dense icon="north_west" @click.stop>
+              </q-btn>
             </q-item-section>
           </q-item>
         </template>

@@ -2,13 +2,33 @@
 <html>
 
 <head>
+    <title>DArchivist</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
         type="text/css">
-    <link href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" rel="stylesheet" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/quasar@1.15.13/dist/quasar.min.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
+    <script>
+        // place before including Quasar UMD script
+        // (will not work for IE11)
+
+        window.quasarConfig = {
+            brand: {
+                primary: '#c0d7eb',
+                secondary: '#26A69A',
+                accent: '#9C27B0',
+
+                dark: '#1d1d1d',
+
+                positive: '#21BA45',
+                negative: '#C10015',
+                info: '#31CCEC',
+                warning: '#F2C037'
+            }
+        }
+    </script>
+
     <div id="q-app"></div>
     <script src="https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.13/dist/quasar.umd.modern.js"></script>
