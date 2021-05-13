@@ -1,10 +1,14 @@
 // import { TagslistTemplate } from '../templates/tagslist-template.js'
-
 var API
+import { TagEdit } from './tagedit.js'
 
 const Taglist = {
   setAPI: function (_API) {
     API = _API
+    TagEdit.setAPI(API)
+  },
+  components: {
+    'tag-edit': TagEdit,
   },
   props: [],
   data: function () {
@@ -47,9 +51,6 @@ const Taglist = {
         <template v-slot:prepend>
           <q-icon name="filter_alt"></q-icon>
         </template>
-        <!-- <template v-slot:append>
-                                                                                                            <q-icon v-if="tagfilter !== ''" name="clear" class="cursor-pointer" @click="tagfilter = ''" />
-                                                                                                          </template> -->
       </q-input>
     </div>
   
@@ -59,16 +60,14 @@ const Taglist = {
         :virtual-scroll-item-size="48">
         <template v-slot="{item, index}">
           <q-item :key="item" clickable>
-            <q-popup-edit dense v-model="item">
-              <q-input v-model="item" dense autofocus />
-            </q-popup-edit>
+            <tag-edit></tag-edit>
             <q-item-section>
               <q-item-label lines="1">
                 {{item}}
               </q-item-label>
             </q-item-section>
             <q-item-section clickable side>
-              <q-btn flat round dense icon="north_west" @click.stop>
+              <q-btn flat round dense icon="north_east" @click.stop>
               </q-btn>
             </q-item-section>
           </q-item>
