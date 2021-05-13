@@ -1,6 +1,8 @@
-# Darchivist
+# DArchivist (Digital Archivist)
 
-TODO: Describe Software
+DArchivist is meant to be your personal digital archivist, helping you archive and find your documents in your paperless (home) office. His goal is to keep everything as simple and straightforward as possible. No databases, no dependencies on tools, as few frameworks as possible.
+
+TODO: Describe Software, idea and principle behind DArchivist while going paperless.
 
 ## Getting started
 
