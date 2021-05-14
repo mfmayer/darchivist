@@ -48,7 +48,7 @@ const MainMenu = {
         <q-icon name="folder_open"></q-icon>
         {{archivePath}}
       </div>
-      <q-separator />
+      <q-separator></q-separator>
     </q-menu>
   </q-btn>
 `,

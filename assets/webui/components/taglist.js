@@ -37,7 +37,6 @@ const Taglist = {
         API.post("tags", rq).then(result => {
           Object.freeze(result.tags)
           this.tags = result.tags
-
         }).catch(this.apiCallFailed)
       }
     }
@@ -60,7 +59,7 @@ const Taglist = {
         :virtual-scroll-item-size="48">
         <template v-slot="{item, index}">
           <q-item :key="item" clickable>
-            <tag-edit></tag-edit>
+            <tag-edit :tag="item"></tag-edit>
             <q-item-section>
               <q-item-label lines="1">
                 {{item}}
