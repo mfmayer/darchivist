@@ -17,7 +17,7 @@ var app = new Vue({
     'main-menu': MainMenu,
   },
   data: {
-    showDrawer: true,
+    showTaglist: true,
     languages: ["de"],
     currentLanguage: "",
     title: "",
@@ -48,17 +48,17 @@ var app = new Vue({
     },
   },
   template: String.raw`
-  <q-layout view="lHh lpR fFf">
+  <q-layout view="hHh lpR fFf">
   
     <q-header class="bg-primary text-black">
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="showDrawer = !showDrawer"></q-btn>
+        <q-btn dense flat round icon="menu" @click="showTaglist = !showTaglist"></q-btn>
         <q-toolbar-title>
         </q-toolbar-title>
         <main-menu></main-menu>
       </q-toolbar>
     </q-header>
-    <q-drawer show-if-above v-model="showDrawer" side="left">
+    <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
       <tag-list></tag-list>
     </q-drawer>
   
