@@ -23,7 +23,9 @@ var app = new Vue({
     title: "",
     version: "",
     archivePath: "",
-    tagfilter: "",
+    tagFilter: "",
+    filteredTags: [],
+    selectedTags: [],
   },
   methods: {
     apiCallFailed: function (error) {
@@ -35,17 +37,28 @@ var app = new Vue({
           app.title = result.title
           app.version = result.version
           app.archivePath = result.archivePath
-          // app.tags = result.tags
-          // Taglist.tags = result.tags
         }).catch(app.apiCallFailed)
     },
-    refreshTags: function () {
-      var rq = { tagsFilter: this.tagfilter }
-      API.post("tags", rq).then(result => {
-        Object.freeze(result.tags)
-        this.tags = result.tags
-      }).catch(this.apiCallFailed)
+    filterChanged: function (value) {
+      this.tagFilter = value
     },
+    clearFilter: function () {
+      if (this.$refs.qselect !== void 0) {
+        this.$refs.qselect.updateInputValue('Bla')
+      }
+    }
+  },
+  watch: {
+    tagFilter: {
+      immediate: true,
+      handler (newVal, oldVal) {
+        var rq = { tagsFilter: newVal }
+        API.post("tags", rq).then(result => {
+          Object.freeze(result.tags)
+          this.filteredTags = result.tags
+        }).catch(this.apiCallFailed)
+      }
+    }
   },
   template: String.raw`
   <q-layout view="hHh lpR fFf">
@@ -54,12 +67,14 @@ var app = new Vue({
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="showTaglist = !showTaglist"></q-btn>
         <q-toolbar-title>
+          <q-select ref="qselect" use-input filled v-model="selectedTags" multiple :options="filteredTags" use-chips
+            stack-label label="Multiple selection" @input-value="filterChanged" @input="clearFilter" />
         </q-toolbar-title>
         <main-menu></main-menu>
       </q-toolbar>
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
-      <tag-list></tag-list>
+      <tag-list :filteredTags="filteredTags"></tag-list>
     </q-drawer>
   
   

@@ -10,7 +10,9 @@ const Taglist = {
   components: {
     'tag-edit': TagEdit,
   },
-  props: [],
+  props: {
+    filteredTags: Array
+  },
   data: function () {
     return {
       tagfilter: "",
@@ -55,7 +57,7 @@ const Taglist = {
   
     <q-scroll-area id="scroll-area-with-virtual-scroll-1"
       style="height: calc(100% - 50px); margin-top: 50px; border-right: 1px solid #ddd">
-      <q-virtual-scroll :items="tags" scroll-target="#scroll-area-with-virtual-scroll-1 > .scroll"
+      <q-virtual-scroll :items="filteredTags" scroll-target="#scroll-area-with-virtual-scroll-1 > .scroll"
         :virtual-scroll-item-size="48">
         <template v-slot="{item, index}">
           <q-item :key="item" clickable>
