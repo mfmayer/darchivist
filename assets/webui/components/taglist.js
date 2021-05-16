@@ -47,16 +47,16 @@ const Taglist = {
   },
   template: String.raw`
   <div class="fit scroll">
-    <div class="absolute-top bg-primary row items-center" style="height: 50px">
-      <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
-        <template v-slot:prepend>
-          <q-icon name="filter_alt"></q-icon>
-        </template>
-      </q-input>
-    </div>
+    <!-- <div class="absolute-top bg-primary row items-center" style="height: 50px">
+              <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
+                <template v-slot:prepend>
+                  <q-icon name="filter_alt"></q-icon>
+                </template>
+              </q-input>
+            </div> -->
   
     <q-scroll-area id="scroll-area-with-virtual-scroll-1"
-      style="height: calc(100% - 50px); margin-top: 50px; border-right: 1px solid #ddd">
+      style="height: calc(100% - 0px); margin-top: 0px; border-right: 1px solid #ddd">
       <q-virtual-scroll :items="filteredTags" scroll-target="#scroll-area-with-virtual-scroll-1 > .scroll"
         :virtual-scroll-item-size="48">
         <template v-slot="{item, index}">

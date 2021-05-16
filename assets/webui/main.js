@@ -63,20 +63,22 @@ var app = new Vue({
   template: String.raw`
   <q-layout view="hHh lpR fFf">
   
-    <q-header class="bg-primary text-black">
+    <q-header class="bg-primary">
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="showTaglist = !showTaglist"></q-btn>
+        <q-btn flat round dense icon="menu" class="q-mr-sm" @click="showTaglist = !showTaglist"></q-btn>
+        <q-separator vertical inset />
         <q-toolbar-title>
-          <q-select ref="qselect" use-input filled v-model="selectedTags" multiple :options="filteredTags" use-chips
-            stack-label label="Multiple selection" @input-value="filterChanged" @input="clearFilter" />
+          <q-input dark dense standout v-model="tagFilter" placeholder="Filter Tags"></q-input>
         </q-toolbar-title>
         <main-menu></main-menu>
       </q-toolbar>
+      <div class="q-pa-xs q-gutter-none">
+        <q-chip dense removable color="secondary">Tag-Placeholder</q-chip>
+      </div>
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
       <tag-list :filteredTags="filteredTags"></tag-list>
     </q-drawer>
-  
   
     <q-page-container>
       <div class="q-pa-md row justify-center">
