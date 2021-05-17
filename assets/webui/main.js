@@ -46,6 +46,18 @@ var app = new Vue({
       if (this.$refs.qselect !== void 0) {
         this.$refs.qselect.updateInputValue('Bla')
       }
+    },
+    unselectTag: function (tag) {
+      var index = this.selectedTags.indexOf(tag)
+      if (index >= 0) {
+        this.selectedTags.splice(index, 1)
+      }
+    },
+    selectTag: function (tag) {
+      var index = this.selectedTags.indexOf(tag)
+      if (index < 0) {
+        this.selectedTags.push(tag)
+      }
     }
   },
   watch: {
@@ -72,12 +84,20 @@ var app = new Vue({
         </q-toolbar-title>
         <main-menu></main-menu>
       </q-toolbar>
-      <div class="q-pa-xs q-gutter-none">
-        <q-chip dense removable color="secondary">Tag-Placeholder</q-chip>
+      <div class="q-pa-xs q-gutter-x-none">
+  
+        <q-icon v-if="selectedTags.length > 0" name="cancel" style="font-size: 24px;" class="q-ma-xs cursor-pointer"
+          @click.stop="selectedTags=[]"></q-icon>
+        <q-icon v-else name="style" style="font-size: 24px;" class="q-ma-xs"></q-icon>
+        <!-- <q-btn v-if="selectedTags.length > 0" dense flat icon="cancel" @click.stop="selectedTags=[]"></q-btn> -->
+  
+        <template v-for="(tag, index) in selectedTags">
+          <q-chip dense removable color="secondary" @remove="unselectTag(tag)">{{tag}}</q-chip>
+        </template>
       </div>
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
-      <tag-list :filteredTags="filteredTags"></tag-list>
+      <tag-list :filteredTags="filteredTags" @tagSelected="selectTag"></tag-list>
     </q-drawer>
   
     <q-page-container>

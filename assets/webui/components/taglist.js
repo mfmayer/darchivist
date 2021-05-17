@@ -23,6 +23,9 @@ const Taglist = {
     apiCallFailed: function (error) {
       this.$q.notify('Looks like there was an API problem: ' + error)
     },
+    tagSelected: function (tag) {
+      this.$emit('tagSelected', tag)
+    }
     // refreshTags: function () {
     //   var rq = { tagsFilter: this.tagfilter }
     //   API.post("tags", rq).then(result => {
@@ -48,12 +51,12 @@ const Taglist = {
   template: String.raw`
   <div class="fit scroll">
     <!-- <div class="absolute-top bg-primary row items-center" style="height: 50px">
-              <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
-                <template v-slot:prepend>
-                  <q-icon name="filter_alt"></q-icon>
-                </template>
-              </q-input>
-            </div> -->
+                  <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
+                    <template v-slot:prepend>
+                      <q-icon name="filter_alt"></q-icon>
+                    </template>
+                  </q-input>
+                </div> -->
   
     <q-scroll-area id="scroll-area-with-virtual-scroll-1"
       style="height: calc(100% - 0px); margin-top: 0px; border-right: 1px solid #ddd">
@@ -68,7 +71,7 @@ const Taglist = {
               </q-item-label>
             </q-item-section>
             <q-item-section clickable side>
-              <q-btn flat round dense icon="north_east" @click.stop>
+              <q-btn flat round dense icon="north_east" @click.stop="tagSelected(item)">
               </q-btn>
             </q-item-section>
           </q-item>
