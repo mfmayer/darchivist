@@ -1,10 +1,10 @@
 # DArchivist (Digital Archivist)
 
-DArchivist is meant to be your personal digital archivist, helping you archive and find your documents in your paperless (home) office. His goal is to keep everything as simple and straightforward as possible. No databases, no dependencies on tools, as few frameworks as possible.
+DArchivist is meant to be your personal digital archivist, helping you archive and find your documents in your paperless (home) office. Its goal is to keep everything as simple and straightforward as possible. No databases, no dependencies on tools, as few frameworks as possible.
 
 TODO: Describe Software, idea and principle behind DArchivist while going paperless.
 
-## Getting started
+## Build & Install
 
 After cloning the project, it can be just compiled by:
 
@@ -24,4 +24,12 @@ After starting the application, it will listen on port 9055:
 ```shell
 $ ./darchivist
 INFO:  2021/01/10 14:04:04 Web UI listening on: :9055
+```
+
+## Start
+
+At startup you must tell DArchivist the path where it can find the archive's documents. This can be either done by command line flag or environment variable:
+
+```shell
+& darchivist --
 ```

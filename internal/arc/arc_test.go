@@ -1,10 +1,14 @@
 package arc
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestTags(t *testing.T) {
-	t.Logf("path: %v", Path())
-	tags := Tags("Kind")
+	archive := NewArchive(os.Getenv("DARCHIVE_PATH"))
+	t.Logf("path: %v", archive.Path())
+	tags := archive.Tags("Info", []string{"Versicherung", "Allianz"})
 	for _, tag := range tags {
 		t.Logf("\"%s\"", tag)
 	}
