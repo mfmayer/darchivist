@@ -139,7 +139,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 	}))
 	r.Post("/tags", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
 		rs = &api.Response{
-			Tags: arc.Tags(rq.TagsFilter, []string{}),
+			Tags: arc.Tags(rq.TagsFilter, rq.SelectedTags),
 		}
 		code = http.StatusOK
 		return

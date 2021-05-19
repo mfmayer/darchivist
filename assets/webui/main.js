@@ -32,7 +32,10 @@ var app = new Vue({
       app.$q.notify('Looks like there was an API problem: ' + error)
     },
     apiGetTags: function () {
-      var rq = { tagsFilter: this.tagFilter }
+      var rq = {
+        tagsFilter: this.tagFilter,
+        selectedTags: this.selectedTags
+      }
       API.post("tags", rq).then(result => {
         Object.freeze(result.tags)
         this.filteredTags = result.tags
