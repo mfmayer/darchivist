@@ -35,28 +35,28 @@ const Taglist = {
     // },
   },
   watch: {
-    tagfilter: {
-      immediate: true,
-      handler (newVal, oldVal) {
-        var rq = { tagsFilter: newVal }
-        API.post("tags", rq).then(result => {
-          Object.freeze(result.tags)
-          this.tags = result.tags
-        }).catch(this.apiCallFailed)
-      }
-    }
+    // tagfilter: {
+    //   immediate: true,
+    //   handler (newVal, oldVal) {
+    //     var rq = { tagsFilter: newVal }
+    //     API.post("tags", rq).then(result => {
+    //       Object.freeze(result.tags)
+    //       this.tags = result.tags
+    //     }).catch(this.apiCallFailed)
+    //   }
+    // }
   },
   mounted: function () {
   },
   template: String.raw`
   <div class="fit scroll">
     <!-- <div class="absolute-top bg-primary row items-center" style="height: 50px">
-                  <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
-                    <template v-slot:prepend>
-                      <q-icon name="filter_alt"></q-icon>
-                    </template>
-                  </q-input>
-                </div> -->
+                    <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
+                      <template v-slot:prepend>
+                        <q-icon name="filter_alt"></q-icon>
+                      </template>
+                    </q-input>
+                  </div> -->
   
     <q-scroll-area id="scroll-area-with-virtual-scroll-1"
       style="height: calc(100% - 0px); margin-top: 0px; border-right: 1px solid #ddd">

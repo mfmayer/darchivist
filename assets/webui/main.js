@@ -20,9 +20,9 @@ var app = new Vue({
     showTaglist: true,
     languages: ["de"],
     currentLanguage: "",
-    title: "",
-    version: "",
-    archivePath: "",
+    // title: "",
+    // version: "",
+    // archivePath: "",
     tagFilter: "",
     filteredTags: [],
     selectedTags: [],
@@ -31,29 +31,39 @@ var app = new Vue({
     apiCallFailed: function (error) {
       app.$q.notify('Looks like there was an API problem: ' + error)
     },
-    getInfo: function () {
-      API.get("info").
-        then(function (result) {
-          app.title = result.title
-          app.version = result.version
-          app.archivePath = result.archivePath
-        }).catch(app.apiCallFailed)
+    apiGetTags: function () {
+      var rq = {
+        tagsFilter: this.tagFilter,
+        selectedTags: this.selectedTags
+      }
+      API.post("tags", rq).then(result => {
+        Object.freeze(result.tags)
+        this.filteredTags = result.tags
+      }).catch(this.apiCallFailed)
     },
+    // getInfo: function () {
+    //   API.get("info").
+    //     then(function (result) {
+    //       app.title = result.title
+    //       app.version = result.version
+    //       app.archivePath = result.archivePath
+    //     }).catch(app.apiCallFailed)
+    // },
     filterChanged: function (value) {
       this.tagFilter = value
     },
-    clearFilter: function () {
-      if (this.$refs.qselect !== void 0) {
-        this.$refs.qselect.updateInputValue('Bla')
-      }
-    },
-    unselectTag: function (tag) {
+    // clearFilter: function () {
+    //   if (this.$refs.qselect !== void 0) {
+    //     this.$refs.qselect.updateInputValue('Bla')
+    //   }
+    // },
+    tagDeselected: function (tag) {
       var index = this.selectedTags.indexOf(tag)
       if (index >= 0) {
         this.selectedTags.splice(index, 1)
       }
     },
-    selectTag: function (tag) {
+    tagSelected: function (tag) {
       var index = this.selectedTags.indexOf(tag)
       if (index < 0) {
         this.selectedTags.push(tag)
@@ -64,11 +74,12 @@ var app = new Vue({
     tagFilter: {
       immediate: true,
       handler (newVal, oldVal) {
-        var rq = { tagsFilter: newVal }
-        API.post("tags", rq).then(result => {
-          Object.freeze(result.tags)
-          this.filteredTags = result.tags
-        }).catch(this.apiCallFailed)
+        this.apiGetTags()
+      }
+    },
+    selectedTags: {
+      handler (newVal, oldVal) {
+        this.apiGetTags()
       }
     }
   },
@@ -92,12 +103,12 @@ var app = new Vue({
         <!-- <q-btn v-if="selectedTags.length > 0" dense flat icon="cancel" @click.stop="selectedTags=[]"></q-btn> -->
   
         <template v-for="(tag, index) in selectedTags">
-          <q-chip dense removable color="secondary" @remove="unselectTag(tag)">{{tag}}</q-chip>
+          <q-chip dense removable color="secondary" @remove="tagDeselected(tag)">{{tag}}</q-chip>
         </template>
       </div>
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
-      <tag-list :filteredTags="filteredTags" @tagSelected="selectTag"></tag-list>
+      <tag-list :filteredTags="filteredTags" @tagSelected="tagSelected"></tag-list>
     </q-drawer>
   
     <q-page-container>
