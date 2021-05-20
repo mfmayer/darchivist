@@ -14,6 +14,15 @@ func TestTags(t *testing.T) {
 	}
 }
 
+func TestFiles(t *testing.T) {
+	archive := NewArchive(os.Getenv("DARCHIVE_PATH"))
+	t.Logf("path: %v", archive.Path())
+	files := archive.Files([]string{"Versicherung"})
+	for _, file := range files {
+		t.Logf("\"%s\"", file.Name)
+	}
+}
+
 func TestStringSet(t *testing.T) {
 	tags := StringSet{}
 	tags.Add("Welt")

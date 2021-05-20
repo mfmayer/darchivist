@@ -53,14 +53,14 @@ func getTags(name string, preparedSet StringSet) (dateTime *time.Time, tagSet St
 	return
 }
 
-func entryDetails(path string, e fs.DirEntry, deepTagSet bool) (dateTime *time.Time, fileExtension *string, tagSet StringSet) {
+func entryDetails(path string, e fs.DirEntry, deepTagSet bool) (dateTime *time.Time, fileExtension string, tagSet StringSet) {
 	tagSet = StringSet{}
 	name := e.Name()
 	if e.Type().IsRegular() {
 		// Extract and strip file extension
 		if i := strings.LastIndex(name, "."); i > 0 {
 			fext := name[i+1:]
-			fileExtension = &fext
+			fileExtension = fext
 			name = name[:i]
 		}
 	} else if e.Type().IsDir() {
@@ -122,6 +122,41 @@ func (arc *Archive) Tags(filter string, siblings []string) []string {
 	return tags
 }
 
+func (arc *Archive) Files(tags []string) []api.File {
+	//tagSet := StringSet{}
+	dirTagSet := StringSet{}
+	var files []api.File
+	filepath.WalkDir(arc.path, func(path string, d fs.DirEntry, err error) error {
+		if err == nil {
+			var fileTagSet StringSet
+			var dateTime *time.Time
+			var fileExtension string
+			if d.IsDir() {
+				_, _, dirTagSet = entryDetails(path[len(arc.path):], d, true)
+			} else {
+				dateTime, fileExtension, fileTagSet = entryDetails(path[len(arc.path):], d, false)
+				if foundAll(tags, dirTagSet, fileTagSet) {
+					//tagSet.AddSets(dirTagSet, fileTagSet)
+					if fi, err := d.Info(); err == nil {
+						file := api.File{
+							Name:          fi.Name(),
+							FileExtension: fileExtension,
+							Size:          int(fi.Size()),
+							ModTime:       fi.ModTime(),
+						}
+						if dateTime != nil {
+							file.Date = *dateTime
+						}
+						files = append(files, file)
+					}
+				}
+			}
+		}
+		return err
+	})
+	return files
+}
+
 // InstallAPI installs the api handler functions
 func (arc *Archive) InstallAPI(r chi.Router) {
 	r.Use(cors.Handler(cors.Options{
@@ -140,6 +175,13 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 	r.Post("/tags", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
 		rs = &api.Response{
 			Tags: arc.Tags(rq.TagsFilter, rq.SelectedTags),
+		}
+		code = http.StatusOK
+		return
+	}))
+	r.Post("/files", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
+		rs = &api.Response{
+			Files: arc.Files(rq.SelectedTags),
 		}
 		code = http.StatusOK
 		return

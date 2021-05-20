@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/mfmayer/darchivist/internal/log"
 )
@@ -59,6 +60,14 @@ func PostHandler(handleFunc postHandleFunc) func(w http.ResponseWriter, r *http.
 	}
 }
 
+type File struct {
+	Name          string    `json:"name,omitempty"`
+	FileExtension string    `json:"fileExtension,omitempty"`
+	Size          int       `json:"size,omitempty"`
+	Date          time.Time `json:"date,omitempty"`
+	ModTime       time.Time `json:"modTime,omitempty"`
+}
+
 type Response struct {
 	Title           string   `json:"title,omitempty"`
 	Version         string   `json:"version,omitempty"`
@@ -66,6 +75,7 @@ type Response struct {
 	CurrentLanguage string   `json:"currentLanguage,omitempty"`
 	Languages       []string `json:"languages,omitempty"`
 	Tags            []string `json:"tags,omitempty"`
+	Files           []File   `json:"files,omitempty"`
 }
 
 type Request struct {
