@@ -2,10 +2,12 @@ import { InitAPI } from './_api.js'
 var apiURL = "../api/"
 const API = InitAPI(apiURL)
 
-import { Taglist } from './components/taglist.js'
-Taglist.setAPI(API)
 import { MainMenu } from './components/mainmenu.js'
 MainMenu.setAPI(API)
+import { Taglist } from './components/taglist.js'
+Taglist.setAPI(API)
+import { FileTable } from './components/filetable.js'
+FileTable.setAPI(API)
 // import { MainTemplate } from './templates/main-template.js'
 
 Quasar.lang.set(Quasar.lang.de)
@@ -13,8 +15,9 @@ Quasar.lang.set(Quasar.lang.de)
 var app = new Vue({
   el: '#q-app',
   components: {
-    'tag-list': Taglist,
     'main-menu': MainMenu,
+    'tag-list': Taglist,
+    'file-table': FileTable,
   },
   data: {
     showTaglist: true,
@@ -84,7 +87,7 @@ var app = new Vue({
     }
   },
   template: String.raw`
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpR fFf" style="height: 100%">
   
     <q-header class="bg-primary">
       <q-toolbar>
@@ -111,11 +114,10 @@ var app = new Vue({
       <tag-list :filteredTags="filteredTags" @tagSelected="tagSelected"></tag-list>
     </q-drawer>
   
-    <q-page-container>
-      <div class="q-pa-md row justify-center">
-        <div style="width: 100%">
-        </div>
-      </div>
+    <q-page-container class="fit">
+      <q-page class="fit">
+        <file-table></file-table>
+      </q-page>
     </q-page-container>
   
   </q-layout>
