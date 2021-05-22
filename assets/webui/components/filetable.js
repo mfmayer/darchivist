@@ -10,19 +10,10 @@ const FileTable = {
     //'tag-edit': TagEdit,
   },
   props: {
-    // files: Array
+    files: Array
   },
   data: function () {
     return {
-      files: [
-        {
-          name: 'Document1',
-        },
-        {
-          name: 'Document2',
-        }
-      ],
-
       pagination: {
         rowsPerPage: 0
       },

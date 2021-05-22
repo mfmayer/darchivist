@@ -23,12 +23,10 @@ var app = new Vue({
     showTaglist: true,
     languages: ["de"],
     currentLanguage: "",
-    // title: "",
-    // version: "",
-    // archivePath: "",
     tagFilter: "",
-    filteredTags: [],
     selectedTags: [],
+    tags: [],
+    files: [],
   },
   methods: {
     apiCallFailed: function (error) {
@@ -41,25 +39,21 @@ var app = new Vue({
       }
       API.post("tags", rq).then(result => {
         Object.freeze(result.tags)
-        this.filteredTags = result.tags
+        this.tags = result.tags
       }).catch(this.apiCallFailed)
     },
-    // getInfo: function () {
-    //   API.get("info").
-    //     then(function (result) {
-    //       app.title = result.title
-    //       app.version = result.version
-    //       app.archivePath = result.archivePath
-    //     }).catch(app.apiCallFailed)
-    // },
-    filterChanged: function (value) {
-      this.tagFilter = value
+    apiGetFiles: function () {
+      var rq = {
+        selectedTags: this.selectedTags
+      }
+      API.post("files", rq).then(result => {
+        Object.freeze(result.tags)
+        this.files = result.files
+      }).catch(this.apiCallFailed)
     },
-    // clearFilter: function () {
-    //   if (this.$refs.qselect !== void 0) {
-    //     this.$refs.qselect.updateInputValue('Bla')
-    //   }
-    // },
+    selectBestMatch: function () {
+      // TODO: select tag
+    },
     tagDeselected: function (tag) {
       var index = this.selectedTags.indexOf(tag)
       if (index >= 0) {
@@ -70,6 +64,7 @@ var app = new Vue({
       var index = this.selectedTags.indexOf(tag)
       if (index < 0) {
         this.selectedTags.push(tag)
+        this.tagFilter = ""
       }
     }
   },
@@ -83,6 +78,7 @@ var app = new Vue({
     selectedTags: {
       handler (newVal, oldVal) {
         this.apiGetTags()
+        this.apiGetFiles()
       }
     }
   },
@@ -94,7 +90,9 @@ var app = new Vue({
         <q-btn flat round dense icon="menu" class="q-mr-sm" @click="showTaglist = !showTaglist"></q-btn>
         <q-separator vertical inset />
         <q-toolbar-title>
-          <q-input dark dense standout v-model="tagFilter" placeholder="Filter Tags"></q-input>
+          <q-input dark dense standout v-model="tagFilter" placeholder="Filter Tags"
+            @keydown.enter="selectBestMatch(tagFilter)">
+          </q-input>
         </q-toolbar-title>
         <main-menu></main-menu>
       </q-toolbar>
@@ -111,18 +109,20 @@ var app = new Vue({
       </div>
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
-      <tag-list :filteredTags="filteredTags" @tagSelected="tagSelected"></tag-list>
+      <tag-list :tags="tags" @tagSelected="tagSelected"></tag-list>
     </q-drawer>
   
     <q-page-container class="fit">
       <q-page class="fit">
-        <file-table></file-table>
+        <file-table :files="files"></file-table>
       </q-page>
     </q-page-container>
   
   </q-layout>
 `
 })
+
+app.apiGetFiles()
 
 API.get("info").
   then(function (result) {

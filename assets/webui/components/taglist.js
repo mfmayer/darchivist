@@ -11,14 +11,9 @@ const Taglist = {
     'tag-edit': TagEdit,
   },
   props: {
-    filteredTags: Array
+    tags: Array
   },
-  data: function () {
-    return {
-      tagfilter: "",
-      tags: [],
-    }
-  },
+  data: function () { return {} },
   methods: {
     apiCallFailed: function (error) {
       this.$q.notify('Looks like there was an API problem: ' + error)
@@ -26,41 +21,22 @@ const Taglist = {
     tagSelected: function (tag) {
       this.$emit('tagSelected', tag)
     }
-    // refreshTags: function () {
-    //   var rq = { tagsFilter: this.tagfilter }
-    //   API.post("tags", rq).then(result => {
-    //     Object.freeze(result.tags)
-    //     this.tags = result.tags
-    //   }).catch(this.apiCallFailed)
-    // },
   },
-  watch: {
-    // tagfilter: {
-    //   immediate: true,
-    //   handler (newVal, oldVal) {
-    //     var rq = { tagsFilter: newVal }
-    //     API.post("tags", rq).then(result => {
-    //       Object.freeze(result.tags)
-    //       this.tags = result.tags
-    //     }).catch(this.apiCallFailed)
-    //   }
-    // }
-  },
+  watch: {},
   mounted: function () {
   },
   template: String.raw`
-  <!-- <div class="fit scroll"> -->
   <!-- <div class="absolute-top bg-primary row items-center" style="height: 50px">
-                      <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
-                        <template v-slot:prepend>
-                          <q-icon name="filter_alt"></q-icon>
-                        </template>
-                      </q-input>
-                    </div> -->
+                                    <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
+                                      <template v-slot:prepend>
+                                        <q-icon name="filter_alt"></q-icon>
+                                      </template>
+                                    </q-input>
+                                  </div> -->
   
   <q-scroll-area id="scroll-area-with-virtual-scroll-1"
     style="height: calc(100% - 0px); margin-top: 0px; border-right: 1px solid #ddd">
-    <q-virtual-scroll :items="filteredTags" scroll-target="#scroll-area-with-virtual-scroll-1 > .scroll"
+    <q-virtual-scroll :items="tags" scroll-target="#scroll-area-with-virtual-scroll-1 > .scroll"
       :virtual-scroll-item-size="48">
       <template v-slot="{item, index}">
         <q-item :key="item" clickable>
@@ -78,7 +54,6 @@ const Taglist = {
       </template>
     </q-virtual-scroll>
   </q-scroll-area>
-  <!-- </div> -->
 `,
 }
 
