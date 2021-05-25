@@ -32,22 +32,14 @@ var app = new Vue({
     apiCallFailed: function (error) {
       app.$q.notify('Looks like there was an API problem: ' + error)
     },
-    apiGetTags: function () {
+    apiFind: function () {
       var rq = {
         tagsFilter: this.tagFilter,
         selectedTags: this.selectedTags
       }
-      API.post("tags", rq).then(result => {
+      API.post("find", rq).then(result => {
         Object.freeze(result.tags)
         this.tags = result.tags
-      }).catch(this.apiCallFailed)
-    },
-    apiGetFiles: function () {
-      var rq = {
-        selectedTags: this.selectedTags
-      }
-      API.post("files", rq).then(result => {
-        Object.freeze(result.tags)
         this.files = result.files
       }).catch(this.apiCallFailed)
     },
@@ -70,15 +62,13 @@ var app = new Vue({
   },
   watch: {
     tagFilter: {
-      immediate: true,
       handler (newVal, oldVal) {
-        this.apiGetTags()
+        this.apiFind()
       }
     },
     selectedTags: {
       handler (newVal, oldVal) {
-        this.apiGetTags()
-        this.apiGetFiles()
+        this.apiFind()
       }
     }
   },
@@ -122,7 +112,7 @@ var app = new Vue({
 `
 })
 
-app.apiGetFiles()
+app.apiFind()
 
 API.get("info").
   then(function (result) {

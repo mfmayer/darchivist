@@ -97,35 +97,9 @@ NEXTVALUE:
 	return true
 }
 
-func (arc *Archive) Tags(filter string, siblings []string) []string {
+func (arc *Archive) Find(filterString string, selectedTags []string) (tags []string, files []api.File) {
 	tagSet := StringSet{}
 	dirTagSet := StringSet{}
-	// prefixLength := len(Path())
-	// pathSeparator := string(os.PathSeparator)
-	// tsLayout := "2006-01-02"
-	filepath.WalkDir(arc.path, func(path string, d fs.DirEntry, err error) error {
-		if err == nil {
-			var fileTagSet StringSet
-			if d.IsDir() {
-				_, _, dirTagSet = entryDetails(path[len(arc.path):], d, true)
-			} else {
-				_, _, fileTagSet = entryDetails(path[len(arc.path):], d, false)
-			}
-			if foundAll(siblings, dirTagSet, fileTagSet) {
-				tagSet.AddSets(dirTagSet, fileTagSet)
-			}
-			// log.Printf("%v - %v\n", dirTagSet, fileTagSet)
-		}
-		return err
-	})
-	tags := tagSet.Slice(filter, true)
-	return tags
-}
-
-func (arc *Archive) Files(tags []string) []api.File {
-	//tagSet := StringSet{}
-	dirTagSet := StringSet{}
-	var files []api.File
 	filepath.WalkDir(arc.path, func(path string, d fs.DirEntry, err error) error {
 		if err == nil {
 			var fileTagSet StringSet
@@ -135,8 +109,8 @@ func (arc *Archive) Files(tags []string) []api.File {
 				_, _, dirTagSet = entryDetails(path[len(arc.path):], d, true)
 			} else {
 				dateTime, fileExtension, fileTagSet = entryDetails(path[len(arc.path):], d, false)
-				if foundAll(tags, dirTagSet, fileTagSet) {
-					//tagSet.AddSets(dirTagSet, fileTagSet)
+				if foundAll(selectedTags, dirTagSet, fileTagSet) {
+					tagSet.AddSets(dirTagSet, fileTagSet)
 					if fi, err := d.Info(); err == nil {
 						file := api.File{
 							Name:          fi.Name(),
@@ -154,7 +128,8 @@ func (arc *Archive) Files(tags []string) []api.File {
 		}
 		return err
 	})
-	return files
+	tags = tagSet.Slice(filterString, true)
+	return
 }
 
 // InstallAPI installs the api handler functions
@@ -172,16 +147,11 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 		code = http.StatusOK
 		return
 	}))
-	r.Post("/tags", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
+	r.Post("/find", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
+		tags, files := arc.Find(rq.TagsFilter, rq.SelectedTags)
 		rs = &api.Response{
-			Tags: arc.Tags(rq.TagsFilter, rq.SelectedTags),
-		}
-		code = http.StatusOK
-		return
-	}))
-	r.Post("/files", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
-		rs = &api.Response{
-			Files: arc.Files(rq.SelectedTags),
+			Tags:  tags,
+			Files: files,
 		}
 		code = http.StatusOK
 		return
