@@ -68,6 +68,11 @@ type File struct {
 	ModTime       time.Time `json:"modTime,omitempty"`
 }
 
+type RenameTagRequest struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
 type Response struct {
 	Title           string   `json:"title,omitempty"`
 	Version         string   `json:"version,omitempty"`
@@ -79,6 +84,7 @@ type Response struct {
 }
 
 type Request struct {
-	TagsFilter   string   `json:"tagsFilter,omitempty"`
-	SelectedTags []string `json:"selectedTags,omitempty"`
+	TagsFilter   string            `json:"tagsFilter,omitempty"`
+	SelectedTags []string          `json:"selectedTags,omitempty"`
+	RenameTag    *RenameTagRequest `json:"renameTag,omitempty"`
 }
