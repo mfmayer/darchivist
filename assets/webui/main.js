@@ -44,11 +44,16 @@ var app = new Vue({
       }).catch(this.apiCallFailed)
     },
     selectBestMatch: function () {
-      // TODO: select tag
+      if (this.tags.length > 0) {
+        this.tagSelected(this.tags[0])
+      }
     },
     tagDeselected: function (tag) {
-      var index = this.selectedTags.indexOf(tag)
-      if (index >= 0) {
+      var index = this.selectedTags.length - 1
+      if (tag != null) {
+        var index = this.selectedTags.indexOf(tag)
+      }
+      if (index >= 0 && index < this.selectedTags.length) {
         this.selectedTags.splice(index, 1)
       }
     },
