@@ -53,17 +53,17 @@ func getTags(name string, preparedSet StringSet) (dateTime *time.Time, tagSet St
 	return
 }
 
-func entryDetails(path string, e fs.DirEntry, deepTagSet bool) (dateTime *time.Time, fileExtension string, tagSet StringSet) {
+func entryDetails(path string, de fs.DirEntry, deepTagSet bool) (dateTime *time.Time, fileExtension string, tagSet StringSet) {
 	tagSet = StringSet{}
-	name := e.Name()
-	if e.Type().IsRegular() {
+	name := de.Name()
+	if de.Type().IsRegular() {
 		// Extract and strip file extension
 		if i := strings.LastIndex(name, "."); i > 0 {
 			fext := name[i+1:]
 			fileExtension = fext
 			name = name[:i]
 		}
-	} else if e.Type().IsDir() {
+	} else if de.IsDir() {
 	} else {
 		// only extract tags from files and directories
 		return
@@ -100,18 +100,18 @@ NEXTVALUE:
 func (arc *Archive) Find(filterString string, selectedTags []string) (tags []string, files []api.File) {
 	tagSet := StringSet{}
 	dirTagSet := StringSet{}
-	filepath.WalkDir(arc.path, func(path string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(arc.path, func(path string, de fs.DirEntry, err error) error {
 		if err == nil {
 			var fileTagSet StringSet
 			var dateTime *time.Time
 			var fileExtension string
-			if d.IsDir() {
-				_, _, dirTagSet = entryDetails(path[len(arc.path):], d, true)
+			if de.IsDir() {
+				_, _, dirTagSet = entryDetails(path[len(arc.path):], de, true)
 			} else {
-				dateTime, fileExtension, fileTagSet = entryDetails(path[len(arc.path):], d, false)
+				dateTime, fileExtension, fileTagSet = entryDetails(path[len(arc.path):], de, false)
 				if foundAll(selectedTags, dirTagSet, fileTagSet) {
 					tagSet.AddSets(dirTagSet, fileTagSet)
-					if fi, err := d.Info(); err == nil {
+					if fi, err := de.Info(); err == nil {
 						file := api.File{
 							Name:          fi.Name(),
 							FileExtension: fileExtension,
@@ -148,6 +148,14 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 		return
 	}))
 	r.Post("/find", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
+		// if cpuProfile, err := os.Create("find_cpu.prof"); err == nil {
+		// 	if err := pprof.StartCPUProfile(cpuProfile); err != nil {
+		// 		log.Warning.Print(err)
+		// 	}
+		// 	defer pprof.StopCPUProfile()
+		// } else {
+		// 	log.Warning.Print(err)
+		// }
 		tags, files := arc.Find(rq.TagsFilter, rq.SelectedTags)
 		rs = &api.Response{
 			Tags:  tags,

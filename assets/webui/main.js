@@ -12,6 +12,8 @@ FileTable.setAPI(API)
 
 Quasar.lang.set(Quasar.lang.de)
 
+let apiFindAbort = null
+
 var app = new Vue({
   el: '#q-app',
   components: {
@@ -30,14 +32,20 @@ var app = new Vue({
   },
   methods: {
     apiCallFailed: function (error) {
-      app.$q.notify('Looks like there was an API problem: ' + error)
+      if (error.name != 'AbortError') {
+        app.$q.notify('Looks like there was an API problem: ' + error)
+      }
     },
     apiFind: function () {
+      if (apiFindAbort != null) {
+        apiFindAbort.abort()
+      }
+      apiFindAbort = new AbortController()
       var rq = {
         tagsFilter: this.tagFilter,
         selectedTags: this.selectedTags
       }
-      API.post("find", rq).then(result => {
+      API.post("find", rq, apiFindAbort).then(result => {
         Object.freeze(result.tags)
         this.tags = result.tags
         this.files = result.files

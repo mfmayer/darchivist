@@ -13,33 +13,43 @@ function readResponseAsJSON (response) {
   return response.json();
 }
 
-function getJSON (pathToResource) {
+function getJSON (pathToResource, abortController) {
+  var signal
+  if (abortController != null) {
+    signal = abortController.signal
+  }
   return fetch(pathToResource, {
     method: 'GET',
     headers: {
       'Accept': 'application/json'
-    }
+    },
+    signal: signal
   }).then(readResponseAsJSON)
 }
 
-function postJSON (pathToResource, object) {
+function postJSON (pathToResource, object, abortController) {
+  var signal
+  if (abortController != null) {
+    signal = abortController.signal
+  }
   return fetch(pathToResource, {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(object)
+    body: JSON.stringify(object),
+    signal: signal
   }).then(readResponseAsJSON)
 }
 
 function InitAPI (apiURL) {
   const API = {
-    get: function (path) {
-      return getJSON(apiURL + path)
+    get: function (path, abortController) {
+      return getJSON(apiURL + path, abortController)
     },
-    post: function (path, object) {
-      return postJSON(apiURL + path, object)
+    post: function (path, object, abortController) {
+      return postJSON(apiURL + path, object, abortController)
     },
 
     getArchivePath: function () {
