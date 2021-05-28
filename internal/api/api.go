@@ -73,14 +73,20 @@ type RenameTagRequest struct {
 	To   string `json:"to"`
 }
 
+type Notification struct {
+	Message string `json:"message"`
+	Color   string `json:"color"`
+}
+
 type Response struct {
-	Title           string   `json:"title,omitempty"`
-	Version         string   `json:"version,omitempty"`
-	ArchivePath     string   `json:"archivePath,omitempty"`
-	CurrentLanguage string   `json:"currentLanguage,omitempty"`
-	Languages       []string `json:"languages,omitempty"`
-	Tags            []string `json:"tags,omitempty"`
-	Files           []File   `json:"files,omitempty"`
+	Notification    *Notification `json:"notification,omitempty"`
+	Title           string        `json:"title,omitempty"`
+	Version         string        `json:"version,omitempty"`
+	ArchivePath     string        `json:"archivePath,omitempty"`
+	CurrentLanguage string        `json:"currentLanguage,omitempty"`
+	Languages       []string      `json:"languages,omitempty"`
+	Tags            []string      `json:"tags,omitempty"`
+	Files           []File        `json:"files,omitempty"`
 }
 
 type Request struct {

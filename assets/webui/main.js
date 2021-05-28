@@ -1,13 +1,13 @@
 import { InitAPI } from './_api.js'
 var apiURL = "../api/"
-const API = InitAPI(apiURL)
+var API
 
 import { MainMenu } from './components/mainmenu.js'
-MainMenu.setAPI(API)
+
 import { Taglist } from './components/taglist.js'
-Taglist.setAPI(API)
+
 import { FileTable } from './components/filetable.js'
-FileTable.setAPI(API)
+
 // import { MainTemplate } from './templates/main-template.js'
 
 Quasar.lang.set(Quasar.lang.de)
@@ -15,6 +15,12 @@ Quasar.lang.set(Quasar.lang.de)
 let apiFindAbort = null
 
 var app = new Vue({
+  created: function () {
+    API = InitAPI(apiURL, this.$q)
+    MainMenu.setAPI(API)
+    Taglist.setAPI(API)
+    FileTable.setAPI(API)
+  },
   el: '#q-app',
   components: {
     'main-menu': MainMenu,
@@ -33,7 +39,7 @@ var app = new Vue({
   methods: {
     apiCallFailed: function (error) {
       if (error.name != 'AbortError') {
-        app.$q.notify('Looks like there was an API problem: ' + error)
+        this.$q.notify('Looks like there was an API problem: ' + error)
       }
     },
     apiFind: function () {
@@ -127,10 +133,11 @@ var app = new Vue({
 
 app.apiFind()
 
-API.get("info").
-  then(function (result) {
-    app.title = result.title
-    app.version = result.version
-    app.archivePath = result.archivePath
-    app.tags = result.tags
-  }).catch(app.apiCallFailed)
+// See mainmenu mounted()
+// API.get("info").
+//   then(function (result) {
+//     app.title = result.title
+//     app.version = result.version
+//     app.archivePath = result.archivePath
+//     app.tags = result.tags
+//   }).catch(app.apiCallFailed)

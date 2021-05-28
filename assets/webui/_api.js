@@ -43,45 +43,24 @@ function postJSON (pathToResource, object, abortController) {
   }).then(readResponseAsJSON)
 }
 
-function InitAPI (apiURL) {
+function InitAPI (apiURL, $q) {
   const API = {
     get: function (path, abortController) {
-      return getJSON(apiURL + path, abortController)
+      return getJSON(apiURL + path, abortController).then(result => {
+        if (result.notification !== undefined) {
+          $q.notify(result.notification)
+        }
+        return result
+      })
     },
     post: function (path, object, abortController) {
-      return postJSON(apiURL + path, object, abortController)
-    },
-
-    getArchivePath: function () {
-      return getJSON(apiURL + "archivePath").then(function (response) {
-        if (response.title != null) {
-          return response.title
+      return postJSON(apiURL + path, object, abortController).then(result => {
+        if (result.notification !== undefined) {
+          $q.notify(result.notification)
         }
-        return "unknown"
+        return result
       })
-    },
-
-    getVersion: function () {
-      return getJSON(apiURL + "version").then(function (response) {
-        if (response.version != null) {
-          return response.version
-        }
-        return "unknown"
-      })
-    },
-
-    setName: function (name) {
-      var body = {
-        name: name
-      }
-      return postJSON(apiURL + "setName", body).then(function (response) {
-        if (response.message != null) {
-          return response.message
-        }
-        return ""
-      })
-    },
-
+    }
   }
   return API
 }
