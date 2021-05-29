@@ -19,6 +19,7 @@ darchivist
 # hidden folders and files
 .*
 !.gitignore
+!.github
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
