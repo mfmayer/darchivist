@@ -78,13 +78,18 @@ type Notification struct {
 	Color   string `json:"color"`
 }
 
+type Language struct {
+	Name string `json:"name"`
+	Tag  string `json:"tag"`
+}
+
 type Response struct {
 	Notification    *Notification `json:"notification,omitempty"`
 	Title           string        `json:"title,omitempty"`
 	Version         string        `json:"version,omitempty"`
 	ArchivePath     string        `json:"archivePath,omitempty"`
 	CurrentLanguage string        `json:"currentLanguage,omitempty"`
-	Languages       []string      `json:"languages,omitempty"`
+	Languages       []Language    `json:"languages,omitempty"`
 	Tags            []string      `json:"tags,omitempty"`
 	Files           []File        `json:"files,omitempty"`
 }
@@ -93,4 +98,5 @@ type Request struct {
 	TagsFilter   string            `json:"tagsFilter,omitempty"`
 	SelectedTags []string          `json:"selectedTags,omitempty"`
 	RenameTag    *RenameTagRequest `json:"renameTag,omitempty"`
+	LanguageTag  string            `json:"languageTag,omitempty"`
 }

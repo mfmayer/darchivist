@@ -29,8 +29,6 @@ var app = new Vue({
   },
   data: {
     showTaglist: true,
-    languages: ["de"],
-    currentLanguage: "",
     tagFilter: "",
     selectedTags: [],
     tags: [],
@@ -136,8 +134,10 @@ app.apiFind()
 // See mainmenu mounted()
 // API.get("info").
 //   then(function (result) {
-//     app.title = result.title
-//     app.version = result.version
-//     app.archivePath = result.archivePath
-//     app.tags = result.tags
+//     app.settings.title = result.title
+//     app.settings.version = result.version
+//     app.settings.archivePath = result.archivePath
+//     app.settings.tags = result.tags
+//     app.settings.currentLanguage = result.currentLanguage
+//     app.settings.languages = result.languages
 //   }).catch(app.apiCallFailed)

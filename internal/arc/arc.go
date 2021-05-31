@@ -139,10 +139,25 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 	}))
 	r.Get("/info", api.GetHandler(func() (rs *api.Response, code int) {
 		rs = &api.Response{
-			Title:       "DArchivist",
-			Version:     "v0.0.1",
-			ArchivePath: arc.Path(),
+			Title:           "DArchivist",
+			Version:         "v0.0.1",
+			ArchivePath:     arc.Path(),
+			CurrentLanguage: display.Self.Name(arc.currentLanguage),
 			// Tags:        arc.Tags(""),
+		}
+		for _, t := range arc.languages {
+			rs.Languages = append(rs.Languages, api.Language{
+				Tag:  t.String(),
+				Name: display.Self.Name(t),
+			})
+		}
+		code = http.StatusOK
+		return
+	}))
+	r.Post("/setLanguage", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
+		arc.currentLanguage, _ = language.MatchStrings(arc.languageMatcher, rq.LanguageTag)
+		rs = &api.Response{
+			CurrentLanguage: display.Self.Name(arc.currentLanguage),
 		}
 		code = http.StatusOK
 		return

@@ -6,23 +6,37 @@ const MainMenu = {
   setAPI: function (_API) {
     API = _API
   },
-  props: [],
+  props: {},
   data: function () {
     return {
+      languageExpanded: false,
       title: "",
       version: "",
-      archivePath: ""
+      archivePath: "",
+      currentLanguage: "",
+      languages: [],
     }
   },
   methods: {
     apiCallFailed: function (error) {
       this.$q.notify('Looks like there was an API problem: ' + error)
     },
+    apiSetLanguage: function (languageTag) {
+      var rq = {
+        languageTag: languageTag,
+      }
+      API.post("setLanguage", rq).then(result => {
+        this.currentLanguage = result.currentLanguage
+        this.languageExpanded = false
+      }).catch(this.apiCallFailed)
+    },
     getInfo: function () {
       API.get("info").then(result => {
         this.title = result.title
         this.version = result.version
         this.archivePath = result.archivePath
+        this.currentLanguage = result.currentLanguage
+        this.languages = result.languages
       }).catch(this.apiCallFailed)
     },
   },
@@ -44,11 +58,28 @@ const MainMenu = {
           <q-badge align="top" color="green">{{version}}</q-badge>
         </div>
       </div>
-      <div class="row items-center no-wrap q-ml-md q-mr-md q-mb-md">
-        <q-icon name="folder_open"></q-icon>
-        {{archivePath}}
-      </div>
+  
+      <q-list dense>
+        <q-item>
+          <q-item-section side>
+            <q-icon name="folder"></q-icon>
+          </q-item-section>
+          <q-item-section>{{archivePath}}</q-item-section>
+        </q-item>
       <q-separator></q-separator>
+  
+        <q-expansion-item dense switch-toggle-side expand-separator v-model="languageExpanded" icon="language"
+          :label="currentLanguage">
+          <q-list>
+            <q-item v-for="n in languages" :key="n.tag" dense clickable @click='apiSetLanguage(n.tag)'>
+              <q-item-section side>
+                <!-- <q-icon name="keyboard_arrow_right" /> -->
+              </q-item-section>
+              <q-item-section>{{n.name}}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+      </q-list>
     </q-menu>
   </q-btn>
 `,
