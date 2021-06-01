@@ -1,11 +1,16 @@
+import VueI18n from './locales/vue-i18n.esm.browser.min.js'
+import { Translations } from './locales/translations.js'
+const i18n = new VueI18n({
+  locale: 'ja', // set locale
+  messages: Translations, // set locale messages
+})
+
 import { InitAPI } from './_api.js'
 var apiURL = "../api/"
 var API
 
 import { MainMenu } from './components/mainmenu.js'
-
 import { Taglist } from './components/taglist.js'
-
 import { FileTable } from './components/filetable.js'
 
 // import { MainTemplate } from './templates/main-template.js'
@@ -14,12 +19,15 @@ Quasar.lang.set(Quasar.lang.de)
 
 let apiFindAbort = null
 
+Vue.use(VueI18n)
+
 var app = new Vue({
+  i18n,
   created: function () {
     API = InitAPI(apiURL, this.$q)
-    MainMenu.setAPI(API)
-    Taglist.setAPI(API)
-    FileTable.setAPI(API)
+    MainMenu.init(API)
+    Taglist.init(API)
+    FileTable.init(API)
   },
   el: '#q-app',
   components: {
@@ -75,6 +83,9 @@ var app = new Vue({
         this.selectedTags.push(tag)
         this.tagFilter = ""
       }
+    },
+    languageChanged: function (language) {
+      i18n.locale = language
     }
   },
   watch: {
@@ -95,13 +106,15 @@ var app = new Vue({
     <q-header class="bg-primary">
       <q-toolbar>
         <q-btn flat round dense icon="menu" class="q-mr-sm" @click="showTaglist = !showTaglist"></q-btn>
-        <q-separator vertical inset />
         <q-toolbar-title>
-          <q-input dark dense standout v-model="tagFilter" placeholder="Filter Tags"
+          <q-input dark dense standout autogrow v-model="tagFilter" :placeholder="this.$t('ui.filterTags')"
             @keydown.enter="selectBestMatch(tagFilter)">
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
           </q-input>
         </q-toolbar-title>
-        <main-menu></main-menu>
+        <main-menu @update:language="languageChanged"></main-menu>
       </q-toolbar>
       <div class="q-pa-xs q-gutter-x-none">
   

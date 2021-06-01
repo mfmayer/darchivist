@@ -88,7 +88,7 @@ type Response struct {
 	Title           string        `json:"title,omitempty"`
 	Version         string        `json:"version,omitempty"`
 	ArchivePath     string        `json:"archivePath,omitempty"`
-	CurrentLanguage string        `json:"currentLanguage,omitempty"`
+	CurrentLanguage Language      `json:"currentLanguage,omitempty"`
 	Languages       []Language    `json:"languages,omitempty"`
 	Tags            []string      `json:"tags,omitempty"`
 	Files           []File        `json:"files,omitempty"`

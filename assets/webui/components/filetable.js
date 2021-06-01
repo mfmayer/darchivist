@@ -2,9 +2,9 @@ var API
 //import { FileEdit } from './filedit.js'
 
 const FileTable = {
-  setAPI: function (_API) {
+  init: function (_API) {
     API = _API
-    //FileEdit.setAPI(API)
+    //FileEdit.init(API)
   },
   components: {
     //'tag-edit': TagEdit,

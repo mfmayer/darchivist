@@ -12,19 +12,31 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/mfmayer/darchivist/internal/api"
+	"golang.org/x/text/language"
+	"golang.org/x/text/language/display"
 )
 
 func init() {
 }
 
 type Archive struct {
-	path string
+	path            string
+	currentLanguage language.Tag
+	languages       []language.Tag
+	languageMatcher language.Matcher
 }
 
-func NewArchive(path string) *Archive {
-	return &Archive{
-		path: path,
+func NewArchive(path string) (arc *Archive) {
+	arc = &Archive{
+		path:            path,
+		currentLanguage: language.English,
+		languages: []language.Tag{
+			language.English,
+			language.German,
+		},
 	}
+	arc.languageMatcher = language.NewMatcher(arc.languages)
+	return
 }
 
 func getTags(name string, preparedSet StringSet) (dateTime *time.Time, tagSet StringSet) {
@@ -139,11 +151,13 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 	}))
 	r.Get("/info", api.GetHandler(func() (rs *api.Response, code int) {
 		rs = &api.Response{
-			Title:           "DArchivist",
-			Version:         "v0.0.1",
-			ArchivePath:     arc.Path(),
-			CurrentLanguage: display.Self.Name(arc.currentLanguage),
-			// Tags:        arc.Tags(""),
+			Title:       "DArchivist",
+			Version:     "v0.0.1",
+			ArchivePath: arc.Path(),
+			CurrentLanguage: api.Language{
+				Tag:  arc.currentLanguage.String(),
+				Name: display.Self.Name(arc.currentLanguage),
+			},
 		}
 		for _, t := range arc.languages {
 			rs.Languages = append(rs.Languages, api.Language{
@@ -157,7 +171,10 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 	r.Post("/setLanguage", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
 		arc.currentLanguage, _ = language.MatchStrings(arc.languageMatcher, rq.LanguageTag)
 		rs = &api.Response{
-			CurrentLanguage: display.Self.Name(arc.currentLanguage),
+			CurrentLanguage: api.Language{
+				Tag:  arc.currentLanguage.String(),
+				Name: display.Self.Name(arc.currentLanguage),
+			},
 		}
 		code = http.StatusOK
 		return

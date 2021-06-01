@@ -1,7 +1,7 @@
 var API
 
 const TagEdit = {
-  setAPI: function (_API) {
+  init: function (_API) {
     API = _API
   },
   data: function () {

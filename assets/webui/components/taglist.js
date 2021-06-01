@@ -1,11 +1,12 @@
 // import { TagslistTemplate } from '../templates/tagslist-template.js'
 var API
+
 import { TagEdit } from './tagedit.js'
 
 const Taglist = {
-  setAPI: function (_API) {
+  init: function (_API) {
     API = _API
-    TagEdit.setAPI(API)
+    TagEdit.init(API)
   },
   components: {
     'tag-edit': TagEdit,
@@ -27,12 +28,12 @@ const Taglist = {
   },
   template: String.raw`
   <!-- <div class="absolute-top bg-primary row items-center" style="height: 50px">
-                                    <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
-                                      <template v-slot:prepend>
-                                        <q-icon name="filter_alt"></q-icon>
-                                      </template>
-                                    </q-input>
-                                  </div> -->
+                                        <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
+                                          <template v-slot:prepend>
+                                            <q-icon name="filter_alt"></q-icon>
+                                          </template>
+                                        </q-input>
+                                      </div> -->
   
   <q-scroll-area id="scroll-area-with-virtual-scroll-1"
     style="height: calc(100% - 0px); margin-top: 0px; border-right: 1px solid #ddd">

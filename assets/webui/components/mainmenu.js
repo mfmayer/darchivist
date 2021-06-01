@@ -3,7 +3,7 @@
 var API
 
 const MainMenu = {
-  setAPI: function (_API) {
+  init: function (_API) {
     API = _API
   },
   props: {},
@@ -13,7 +13,7 @@ const MainMenu = {
       title: "",
       version: "",
       archivePath: "",
-      currentLanguage: "",
+      currentLanguage: {},
       languages: [],
     }
   },
@@ -38,6 +38,13 @@ const MainMenu = {
         this.currentLanguage = result.currentLanguage
         this.languages = result.languages
       }).catch(this.apiCallFailed)
+    },
+  },
+  watch: {
+    currentLanguage: {
+      handler (newVal, oldVal) {
+        this.$emit('update:language', newVal.tag)
+      }
     },
   },
   mounted: function () {
@@ -66,10 +73,27 @@ const MainMenu = {
           </q-item-section>
           <q-item-section>{{archivePath}}</q-item-section>
         </q-item>
-      <q-separator></q-separator>
+  
+        <q-separator></q-separator>
+  
+        <q-item>
+          <q-item-section side>
+            <q-icon name="undo"></q-icon>
+          </q-item-section>
+          <q-item-section>{{ $t("ui.undo") }}</q-item-section>
+        </q-item>
+  
+        <q-item>
+          <q-item-section side>
+            <q-icon name="redo"></q-icon>
+          </q-item-section>
+          <q-item-section>{{ $t("ui.redo") }}</q-item-section>
+        </q-item>
+  
+        <q-separator></q-separator>
   
         <q-expansion-item dense switch-toggle-side expand-separator v-model="languageExpanded" icon="language"
-          :label="currentLanguage">
+          :label="currentLanguage.name">
           <q-list>
             <q-item v-for="n in languages" :key="n.tag" dense clickable @click='apiSetLanguage(n.tag)'>
               <q-item-section side>
