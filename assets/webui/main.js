@@ -24,7 +24,7 @@ Vue.use(VueI18n)
 var app = new Vue({
   i18n,
   created: function () {
-    API = InitAPI(apiURL, this.$q)
+    API = InitAPI(apiURL, this)
     MainMenu.init(API)
     Taglist.init(API)
     FileTable.init(API)
@@ -46,6 +46,7 @@ var app = new Vue({
     apiCallFailed: function (error) {
       if (error.name != 'AbortError') {
         this.$q.notify('Looks like there was an API problem: ' + error)
+        console.trace()
       }
     },
     apiFind: function () {
@@ -57,11 +58,19 @@ var app = new Vue({
         tagsFilter: this.tagFilter,
         selectedTags: this.selectedTags
       }
-      API.post("find", rq, apiFindAbort).then(result => {
-        Object.freeze(result.tags)
-        this.tags = result.tags
-        this.files = result.files
+      API.post("find", rq, apiFindAbort).then(response => {
+        Object.freeze(response.tags)
+        this.tags = response.tags
+        this.files = response.files
       }).catch(this.apiCallFailed)
+    },
+    apiUndo: function () {
+      API.get("undo").then(response => { }).catch(this.apiCallFailed)
+      this.apiFind()
+    },
+    apiRedo: function () {
+      API.get("redo").then(response => { }).catch(this.apiCallFailed)
+      this.apiFind()
     },
     selectBestMatch: function () {
       if (this.tags.length > 0) {
@@ -114,7 +123,7 @@ var app = new Vue({
             </template>
           </q-input>
         </q-toolbar-title>
-        <main-menu @update:language="languageChanged"></main-menu>
+        <main-menu ref="mainMenu" @update:language="languageChanged" @undo="apiUndo" @redo="apiRedo"></main-menu>
       </q-toolbar>
       <div class="q-pa-xs q-gutter-x-none">
   

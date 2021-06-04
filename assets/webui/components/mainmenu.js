@@ -13,6 +13,8 @@ const MainMenu = {
       title: "",
       version: "",
       archivePath: "",
+      undoCount: 0,
+      redoCount: 0,
       currentLanguage: {},
       languages: [],
     }
@@ -20,23 +22,24 @@ const MainMenu = {
   methods: {
     apiCallFailed: function (error) {
       this.$q.notify('Looks like there was an API problem: ' + error)
+      console.trace()
     },
     apiSetLanguage: function (languageTag) {
       var rq = {
         languageTag: languageTag,
       }
-      API.post("setLanguage", rq).then(result => {
-        this.currentLanguage = result.currentLanguage
+      API.post("setLanguage", rq).then(response => {
+        this.currentLanguage = response.currentLanguage
         this.languageExpanded = false
       }).catch(this.apiCallFailed)
     },
     getInfo: function () {
-      API.get("info").then(result => {
-        this.title = result.title
-        this.version = result.version
-        this.archivePath = result.archivePath
-        this.currentLanguage = result.currentLanguage
-        this.languages = result.languages
+      API.get("info").then(response => {
+        this.title = response.title
+        this.version = response.version
+        this.archivePath = response.archivePath
+        this.currentLanguage = response.currentLanguage
+        this.languages = response.languages
       }).catch(this.apiCallFailed)
     },
   },
@@ -76,24 +79,23 @@ const MainMenu = {
   
         <q-separator></q-separator>
   
-        <q-item>
+        <q-item :clickable="undoCount > 0" :disabled="undoCount <= 0" @click="$emit('undo')">
           <q-item-section side>
             <q-icon name="undo"></q-icon>
           </q-item-section>
-          <q-item-section>{{ $t("ui.undo") }}</q-item-section>
+          <q-item-section>{{ $t("ui.undo") }} ({{undoCount}})</q-item-section>
         </q-item>
   
-        <q-item>
+        <q-item :clickable="redoCount > 0" :disabled="redoCount <= 0" @click="$emit('redo')">
           <q-item-section side>
             <q-icon name="redo"></q-icon>
           </q-item-section>
-          <q-item-section>{{ $t("ui.redo") }}</q-item-section>
+          <q-item-section>{{ $t("ui.redo") }} ({{redoCount}})</q-item-section>
         </q-item>
   
         <q-separator></q-separator>
   
-        <q-expansion-item dense switch-toggle-side expand-separator v-model="languageExpanded" icon="language"
-          :label="currentLanguage.name">
+        <q-expansion-item dense expand-separator v-model="languageExpanded" icon="language" :label="currentLanguage.name">
           <q-list>
             <q-item v-for="n in languages" :key="n.tag" dense clickable @click='apiSetLanguage(n.tag)'>
               <q-item-section side>

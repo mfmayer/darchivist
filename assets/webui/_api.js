@@ -43,22 +43,28 @@ function postJSON (pathToResource, object, abortController) {
   }).then(readResponseAsJSON)
 }
 
-function InitAPI (apiURL, $q) {
+function updateAppData (app, response) {
+  if (response.notification !== undefined) {
+    app.$q.notify(response.notification)
+  }
+  if (response.undoRedoCount !== undefined) {
+    app.$refs.mainMenu.undoCount = response.undoRedoCount[0]
+    app.$refs.mainMenu.redoCount = response.undoRedoCount[1]
+  }
+}
+
+function InitAPI (apiURL, app) {
   const API = {
     get: function (path, abortController) {
-      return getJSON(apiURL + path, abortController).then(result => {
-        if (result.notification !== undefined) {
-          $q.notify(result.notification)
-        }
-        return result
+      return getJSON(apiURL + path, abortController).then(response => {
+        updateAppData(app, response)
+        return response
       })
     },
     post: function (path, object, abortController) {
-      return postJSON(apiURL + path, object, abortController).then(result => {
-        if (result.notification !== undefined) {
-          $q.notify(result.notification)
-        }
-        return result
+      return postJSON(apiURL + path, object, abortController).then(response => {
+        updateAppData(app, response)
+        return response
       })
     }
   }

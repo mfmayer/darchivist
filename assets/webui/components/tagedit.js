@@ -13,21 +13,6 @@ const TagEdit = {
   props: {
     tag: String
   },
-  // model: {
-  //   prop: 'tag',
-  //   event: 'tagchange'
-  // },
-  // computed: {
-  //   tagLocal: {
-  //     get: function () {
-  //       return this.tag
-  //     },
-  //     set: function (value) {
-  //       renamedTag = value
-  //       // this.$emit('tagchange', value)
-  //     }
-  //   }
-  // },
   methods: {
     apiCallFailed: function (error) {
       this.$q.notify('Looks like there was an API problem: ' + error)
@@ -41,7 +26,16 @@ const TagEdit = {
         this.confirmDelete = true
       } else {
         // TODO: API rename tag
-        this.$q.notify('TODO: API -> rename tag')
+        //this.$q.notify('TODO: API -> rename tag')
+        var rq = {
+          renameTag: {
+            from: this.tag,
+            to: this.renamedTag
+          }
+        }
+        API.post("renameTag", rq).then(result => {
+
+        }).catch(this.apiCallFailed)
         this.$refs.popup.hide()
       }
     },
