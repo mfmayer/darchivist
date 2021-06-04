@@ -3,16 +3,12 @@ package arc
 import (
 	"io/fs"
 	"net/http"
-	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/araddon/dateparse"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/mfmayer/darchivist/internal/api"
-	"github.com/mfmayer/darchivist/internal/log"
 	"github.com/mfmayer/undostack"
 	"golang.org/x/text/language"
 	"golang.org/x/text/language/display"
@@ -42,98 +38,11 @@ func NewArchive(path string) (arc *Archive) {
 	return
 }
 
-func getTags(name string, preparedSet StringSet) (dateTime *time.Time, tagSet StringSet) {
-	if preparedSet != nil {
-		tagSet = preparedSet
-	} else {
-		tagSet = StringSet{}
-	}
-	// Split into tags separated by " "
-	tags := strings.Split(name, " ")
-	for _, tag := range tags {
-		// if ft == "2019" {
-		// 	log.Printf("%s", ft)
-		// }
-		if tag == "" {
-			continue
-		}
-		if dateTime == nil {
-			if t, err := dateparse.ParseAny(tag); err == nil {
-				dateTime = &t
-				continue
-			}
-		}
-		tagSet[tag] = struct{}{}
-	}
-	return
-}
-
-func splitExtension(base string) (baseWithoutExtension string, extension string) {
-	if i := strings.LastIndex(base, "."); i > 0 {
-		extension = base[i+1:]
-		baseWithoutExtension = base[:i]
-	}
-	return
-}
-
-func entryDetails(path string, de fs.DirEntry, deepTagSet bool) (dateTime *time.Time, fileExtension string, tagSet StringSet) {
-	tagSet = StringSet{}
-	name := de.Name()
-	if de.Type().IsRegular() {
-		// Extract and strip file extension
-		name, fileExtension = splitExtension(name)
-	} else if de.IsDir() {
-	} else {
-		// only extract tags from files and directories
-		return
-	}
-	if deepTagSet {
-		p := strings.ReplaceAll(path, string(os.PathSeparator), " ")
-		_, tagSet = getTags(p, tagSet)
-	}
-	dateTime, tagSet = getTags(name, tagSet)
-	return
-}
-
-func (arc *Archive) Path() string {
-	return arc.path
-}
-
-func foundAll(values []string, sets ...StringSet) bool {
-NEXTVALUE:
-	for _, value := range values {
-		for _, set := range sets {
-			if set != nil {
-				if _, found := set[value]; found {
-					continue NEXTVALUE
-				}
-			}
-		}
-		// no set included the value
-		return false
-	}
-	// all values were included in any of the given sets
-	return true
-}
-
-func (arc *Archive) walkArchive(fn func(absPath string, relPath string, d fs.DirEntry, err error) error) error {
-	return filepath.WalkDir(arc.path, func(absPath string, de fs.DirEntry, err error) error {
-		// skip files/directories that are starting with "."
-		if len(de.Name()) > 0 && de.Name()[0] == '.' {
-			if de.IsDir() {
-				return fs.SkipDir
-			}
-			return nil
-		}
-		relPath := absPath[len(arc.path):]
-		return fn(absPath, relPath, de, err)
-	})
-}
-
-func (arc *Archive) Find(filterString string, selectedTags []string) (tags []string, files []api.File) {
+// find returns found tags and files based on filterString and selectedTags
+func (arc *Archive) find(filterString string, selectedTags []string) (tags []string, files []api.File) {
 	tagSet := StringSet{}
 	dirTagSet := StringSet{}
-	arc.walkArchive(func(absPath string, relPath string, de fs.DirEntry, err error) error {
+	walkArchive(arc.path, func(absPath string, relPath string, de fs.DirEntry, err error) error {
 		if err == nil {
 			var fileTagSet StringSet
 			var dateTime *time.Time
@@ -165,40 +74,15 @@ func (arc *Archive) Find(filterString string, selectedTags []string) (tags []str
 	return
 }
 
-func renameTagInBaseName(baseName, from, to string, isFile bool) (renamed string) {
-	ext := ""
-	if isFile {
-		baseName, ext = splitExtension(baseName)
-	}
-	tags := strings.Split(baseName, " ")
-	newTags := make([]string, len(tags))
-	i := 0
-	for _, tag := range tags {
-		if tag == "" {
-			continue
-		}
-		if tag == from {
-			newTags[i] = to
-		} else {
-			newTags[i] = tag
-		}
-		i++
-	}
-	renamed = strings.Join(newTags, " ")
-	if isFile {
-		renamed = renamed + "." + ext
-	}
-	return
-}
-
-func (arc *Archive) RenameTag(from string, to string) error {
+// renameTag renames tag in the archive
+func (arc *Archive) renameTag(from string, to string) (err error) {
 	if from == "" || to == "" {
 		return nil
 	}
 	// find relevant files and dirs to be be renamed
 	files := []string{}
 	dirs := []string{}
-	arc.walkArchive(func(absPath string, relPath string, de fs.DirEntry, err error) error {
+	walkArchive(arc.path, func(absPath string, relPath string, de fs.DirEntry, err error) error {
 		if err == nil {
 			_, _, tags := entryDetails(relPath, de, false)
 			if _, ok := tags[from]; ok {
@@ -234,17 +118,12 @@ func (arc *Archive) RenameTag(from string, to string) error {
 				OldPath: f,
 				NewPath: dir + base,
 			}
-			log.Trace.Println(*renamAction)
 			renameOperation.Actions = append(renameOperation.Actions, renamAction)
 		}
 	}
 
-	arc.undoStack.Do(renameOperation)
-
-	// log.Trace.Println(files)
-	// log.Trace.Println(dirs)
-
-	return nil
+	err = arc.undoStack.Do(renameOperation)
+	return
 }
 
 // InstallAPI installs the api handler functions
@@ -253,6 +132,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 		AllowedOrigins: []string{"*"}, // consider to allow specific origin hosts only
 	}))
 	r.Get("/info", api.GetHandler(func() (rs *api.Response, code int) {
+		undoCount, redoCount := arc.undoStack.State()
 		rs = &api.Response{
 			Title:       "DArchivist",
 			Version:     "v0.0.1",
@@ -261,6 +141,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 				Tag:  arc.currentLanguage.String(),
 				Name: display.Self.Name(arc.currentLanguage),
 			},
+			UndoRedoCount: []int{undoCount, redoCount},
 		}
 		for _, t := range arc.languages {
 			rs.Languages = append(rs.Languages, api.Language{
@@ -291,7 +172,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 		// } else {
 		// 	log.Warning.Print(err)
 		// }
-		tags, files := arc.Find(rq.TagsFilter, rq.SelectedTags)
+		tags, files := arc.find(rq.TagsFilter, rq.SelectedTags)
 		rs = &api.Response{
 			Tags:  tags,
 			Files: files,
@@ -300,11 +181,46 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 		return
 	}))
 	r.Post("/renameTag", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
-		arc.RenameTag(rq.RenameTag.From, rq.RenameTag.To)
+		err := arc.renameTag(rq.RenameTag.From, rq.RenameTag.To)
+		undoCount, redoCount := arc.undoStack.State()
 		rs = &api.Response{
 			Notification: &api.Notification{
 				Message: "Done",
 			},
+			UndoRedoCount: []int{undoCount, redoCount},
+		}
+		if err != nil {
+			rs.Notification.Message = err.Error()
+		}
+		code = http.StatusOK
+		return
+	}))
+	r.Get("/undo", api.GetHandler(func() (rs *api.Response, code int) {
+		err := arc.undoStack.Undo()
+		undoCount, redoCount := arc.undoStack.State()
+		rs = &api.Response{
+			Notification: &api.Notification{
+				Message: "Done",
+			},
+			UndoRedoCount: []int{undoCount, redoCount},
+		}
+		if err != nil {
+			rs.Notification.Message = err.Error()
+		}
+		code = http.StatusOK
+		return
+	}))
+	r.Get("/redo", api.GetHandler(func() (rs *api.Response, code int) {
+		err := arc.undoStack.Redo()
+		undoCount, redoCount := arc.undoStack.State()
+		rs = &api.Response{
+			Notification: &api.Notification{
+				Message: "Done",
+			},
+			UndoRedoCount: []int{undoCount, redoCount},
+		}
+		if err != nil {
+			rs.Notification.Message = err.Error()
 		}
 		code = http.StatusOK
 		return
