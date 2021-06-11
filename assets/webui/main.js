@@ -116,7 +116,7 @@ var app = new Vue({
       <q-toolbar>
         <q-btn flat round dense icon="menu" class="q-mr-sm" @click="showTaglist = !showTaglist"></q-btn>
         <q-toolbar-title>
-          <q-input dark dense standout autogrow v-model="tagFilter" :placeholder="this.$t('ui.filterTags')"
+          <q-input dark dense standout v-model="tagFilter" :placeholder="this.$t('ui.filterTags')"
             @keydown.enter="selectBestMatch(tagFilter)">
             <template v-slot:append>
               <q-icon name="search" />
