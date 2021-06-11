@@ -21,6 +21,9 @@ const Taglist = {
     },
     tagSelected: function (tag) {
       this.$emit('tagSelected', tag)
+    },
+    tagModified: function (tag) {
+      this.$emit('modified')
     }
   },
   watch: {},
@@ -28,12 +31,12 @@ const Taglist = {
   },
   template: String.raw`
   <!-- <div class="absolute-top bg-primary row items-center" style="height: 50px">
-                                        <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
-                                          <template v-slot:prepend>
-                                            <q-icon name="filter_alt"></q-icon>
-                                          </template>
-                                        </q-input>
-                                      </div> -->
+                                            <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
+                                              <template v-slot:prepend>
+                                                <q-icon name="filter_alt"></q-icon>
+                                              </template>
+                                            </q-input>
+                                          </div> -->
   
   <q-scroll-area id="scroll-area-with-virtual-scroll-1"
     style="height: calc(100% - 0px); margin-top: 0px; border-right: 1px solid #ddd">
@@ -41,7 +44,7 @@ const Taglist = {
       :virtual-scroll-item-size="48">
       <template v-slot="{item, index}">
         <q-item :key="item" clickable>
-          <tag-edit :tag="item"></tag-edit>
+          <tag-edit :tag="item" @modified="tagModified(item)"></tag-edit>
           <q-item-section>
             <q-item-label lines="1">
               {{item}}

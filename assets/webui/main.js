@@ -72,6 +72,9 @@ var app = new Vue({
       API.get("redo").then(response => { }).catch(this.apiCallFailed)
       this.apiFind()
     },
+    refresh: function () {
+      this.apiFind()
+    },
     selectBestMatch: function () {
       if (this.tags.length > 0) {
         this.tagSelected(this.tags[0])
@@ -100,12 +103,12 @@ var app = new Vue({
   watch: {
     tagFilter: {
       handler (newVal, oldVal) {
-        this.apiFind()
+        this.refresh()
       }
     },
     selectedTags: {
       handler (newVal, oldVal) {
-        this.apiFind()
+        this.refresh()
       }
     }
   },
@@ -138,7 +141,7 @@ var app = new Vue({
       </div>
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
-      <tag-list :tags="tags" @tagSelected="tagSelected"></tag-list>
+      <tag-list :tags="tags" @tagSelected="tagSelected" @modified="refresh"></tag-list>
     </q-drawer>
   
     <q-page-container class="fit">

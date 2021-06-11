@@ -25,8 +25,6 @@ const TagEdit = {
       if (this.renamedTag === "") {
         this.confirmDelete = true
       } else {
-        // TODO: API rename tag
-        //this.$q.notify('TODO: API -> rename tag')
         var rq = {
           renameTag: {
             from: this.tag,
@@ -34,7 +32,7 @@ const TagEdit = {
           }
         }
         API.post("renameTag", rq).then(result => {
-
+          this.$emit('modified')
         }).catch(this.apiCallFailed)
         this.$refs.popup.hide()
       }
