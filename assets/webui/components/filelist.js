@@ -1,7 +1,7 @@
 var API
 //import { FileEdit } from './filedit.js'
 
-const FileTable = {
+const FileList = {
   init: function (_API) {
     API = _API
     //FileEdit.init(API)
@@ -25,9 +25,6 @@ const FileTable = {
     }
   },
   methods: {
-    apiCallFailed: function (error) {
-      this.$q.notify('Looks like there was an API problem: ' + error)
-    },
     // fileSelected: function (tag) {
     //   this.$emit('tagSelected', tag)
     // }
@@ -42,5 +39,5 @@ const FileTable = {
 }
 
 export {
-  FileTable
+  FileList
 }

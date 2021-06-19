@@ -11,7 +11,7 @@ var API
 
 import { MainMenu } from './components/mainmenu.js'
 import { Taglist } from './components/taglist.js'
-import { FileTable } from './components/filetable.js'
+import { FileList } from './components/filelist.js'
 
 // import { MainTemplate } from './templates/main-template.js'
 
@@ -27,13 +27,13 @@ var app = new Vue({
     API = InitAPI(apiURL, this)
     MainMenu.init(API)
     Taglist.init(API)
-    FileTable.init(API)
+    FileList.init(API)
   },
   el: '#q-app',
   components: {
     'main-menu': MainMenu,
     'tag-list': Taglist,
-    'file-table': FileTable,
+    'file-list': FileList,
   },
   data: {
     showTaglist: true,
@@ -140,7 +140,7 @@ var app = new Vue({
   
     <q-page-container class="fit">
       <q-page class="fit">
-        <file-table :files="files"></file-table>
+        <file-list :files="files"></file-list>
       </q-page>
     </q-page-container>
   
