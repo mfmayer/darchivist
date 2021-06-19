@@ -16,9 +16,6 @@ const Taglist = {
   },
   data: function () { return {} },
   methods: {
-    apiCallFailed: function (error) {
-      this.$q.notify('Looks like there was an API problem: ' + error)
-    },
     tagSelected: function (tag) {
       this.$emit('tagSelected', tag)
     },

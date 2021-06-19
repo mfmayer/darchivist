@@ -43,12 +43,6 @@ var app = new Vue({
     files: [],
   },
   methods: {
-    apiCallFailed: function (error) {
-      if (error.name != 'AbortError') {
-        this.$q.notify('Looks like there was an API problem: ' + error)
-        console.trace()
-      }
-    },
     apiFind: function () {
       if (apiFindAbort != null) {
         apiFindAbort.abort()
@@ -58,18 +52,18 @@ var app = new Vue({
         tagsFilter: this.tagFilter,
         selectedTags: this.selectedTags
       }
-      API.post("find", rq, apiFindAbort).then(response => {
-        Object.freeze(response.tags)
-        this.tags = response.tags
-        this.files = response.files
-      }).catch(this.apiCallFailed)
+      API.post("find", rq, apiFindAbort)/*.then(response => {
+        // Object.freeze(response.tags)
+        // this.tags = response.tags
+        // this.files = response.files
+      }).catch(this.apiCallFailed)*/
     },
     apiUndo: function () {
-      API.get("undo").then(response => { }).catch(this.apiCallFailed)
+      API.get("undo")/*.then(response => { }).catch(this.apiCallFailed)*/
       this.apiFind()
     },
     apiRedo: function () {
-      API.get("redo").then(response => { }).catch(this.apiCallFailed)
+      API.get("redo")/*.then(response => { }).catch(this.apiCallFailed)*/
       this.apiFind()
     },
     refresh: function () {

@@ -22,24 +22,27 @@ const MainMenu = {
   methods: {
     apiCallFailed: function (error) {
       this.$q.notify('Looks like there was an API problem: ' + error)
-      console.trace()
     },
     apiSetLanguage: function (languageTag) {
       var rq = {
         languageTag: languageTag,
       }
       API.post("setLanguage", rq).then(response => {
-        this.currentLanguage = response.currentLanguage
-        this.languageExpanded = false
+        if (response !== undefined) {
+          this.currentLanguage = response.currentLanguage
+          this.languageExpanded = false
+        }
       }).catch(this.apiCallFailed)
     },
     getInfo: function () {
       API.get("info").then(response => {
-        this.title = response.title
-        this.version = response.version
-        this.archivePath = response.archivePath
-        this.currentLanguage = response.currentLanguage
-        this.languages = response.languages
+        if (response !== undefined) {
+          this.title = response.title
+          this.version = response.version
+          this.archivePath = response.archivePath
+          this.currentLanguage = response.currentLanguage
+          this.languages = response.languages
+        }
       }).catch(this.apiCallFailed)
     },
   },

@@ -51,21 +51,37 @@ function updateAppData (app, response) {
     app.$refs.mainMenu.undoCount = response.undoRedoCount[0]
     app.$refs.mainMenu.redoCount = response.undoRedoCount[1]
   }
+  if (response.files !== undefined) {
+    Object.freeze(response.files)
+    app.files = response.files
+  }
+  if (response.tags !== undefined) {
+    Object.freeze(response.tags)
+    app.tags = response.tags
+  }
 }
 
 function InitAPI (apiURL, app) {
   const API = {
     get: function (path, abortController) {
-      return getJSON(apiURL + path, abortController).then(response => {
-        updateAppData(app, response)
-        return response
-      })
+      return getJSON(apiURL + path, abortController).then(
+        response => {
+          updateAppData(app, response)
+          return response
+        },
+        error => {
+          app.$q.notify('Looks like there was an API problem: ' + error)
+        })
     },
     post: function (path, object, abortController) {
-      return postJSON(apiURL + path, object, abortController).then(response => {
-        updateAppData(app, response)
-        return response
-      })
+      return postJSON(apiURL + path, object, abortController).then(
+        response => {
+          updateAppData(app, response)
+          return response
+        },
+        error => {
+          app.$q.notify('Looks like there was an API problem: ' + error)
+        })
     }
   }
   return API
