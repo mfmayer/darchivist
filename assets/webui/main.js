@@ -12,6 +12,7 @@ var API
 import { MainMenu } from './components/mainmenu.js'
 import { Taglist } from './components/taglist.js'
 import { FileList } from './components/filelist.js'
+import { LogList } from './components/loglist.js'
 
 // import { MainTemplate } from './templates/main-template.js'
 
@@ -28,14 +29,17 @@ var app = new Vue({
     MainMenu.init(API)
     Taglist.init(API)
     FileList.init(API)
+    LogList.init(API)
   },
   el: '#q-app',
   components: {
     'main-menu': MainMenu,
     'tag-list': Taglist,
     'file-list': FileList,
+    'log-list': LogList,
   },
   data: {
+    splitterModel: 50,
     showTaglist: true,
     tagFilter: "",
     selectedTags: [],
@@ -140,7 +144,18 @@ var app = new Vue({
   
     <q-page-container class="fit">
       <q-page class="fit">
-        <file-list :files="files"></file-list>
+        <q-splitter v-model="splitterModel" horizontal class="fit">
+  
+          <template v-slot:before>
+            <file-list :files="files"></file-list>
+          </template>
+  
+          <template v-slot:after>
+            <log-list>
+            </log-list>
+          </template>
+  
+        </q-splitter>
       </q-page>
     </q-page-container>
   
