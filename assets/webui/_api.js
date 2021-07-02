@@ -59,6 +59,13 @@ function updateAppData (app, response) {
     Object.freeze(response.tags)
     app.tags = response.tags
   }
+  if (response.logs !== undefined) {
+    Object.freeze(response.logs)
+    for (var i = 0; i < response.logs.length; i++) {
+      response.logs[i].time = new Date(response.logs[i].time);
+    }
+    app.$refs.logList.logs = response.logs.slice().reverse()
+  }
 }
 
 function InitAPI (apiURL, app) {

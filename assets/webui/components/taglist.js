@@ -27,13 +27,6 @@ const Taglist = {
   mounted: function () {
   },
   template: String.raw`
-  <!-- <div class="absolute-top bg-primary row items-center" style="height: 50px">
-                                            <q-input dense borderless clearable v-model="tagfilter" placeholder="Filter..." class="full-width q-px-sm">
-                                              <template v-slot:prepend>
-                                                <q-icon name="filter_alt"></q-icon>
-                                              </template>
-                                            </q-input>
-                                          </div> -->
   
   <q-scroll-area id="scroll-area-with-virtual-scroll-1"
     style="height: calc(100% - 0px); margin-top: 0px; border-right: 1px solid #ddd">

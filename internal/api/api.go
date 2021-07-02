@@ -74,8 +74,16 @@ type RenameTagRequest struct {
 }
 
 type Notification struct {
-	Message string `json:"message"`
-	Color   string `json:"color"`
+	Message   string `json:"message"`
+	Color     string `json:"color"`
+	MultiLine bool   `json:"multiLine"`
+}
+
+type Log struct {
+	Time      time.Time `json:"time"`
+	Label     string    `json:"label"`
+	Files     []string  `json:"files"`
+	SubLabels []string  `json:"subLabels"`
 }
 
 type Language struct {
@@ -85,6 +93,7 @@ type Language struct {
 
 type Response struct {
 	Notification    *Notification `json:"notification,omitempty"`
+	Logs            []*Log        `json:"logs,omitempty"`
 	Title           string        `json:"title,omitempty"`
 	Version         string        `json:"version,omitempty"`
 	ArchivePath     string        `json:"archivePath,omitempty"`

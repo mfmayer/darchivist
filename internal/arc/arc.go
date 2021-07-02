@@ -1,6 +1,7 @@
 package arc
 
 import (
+	"fmt"
 	"io/fs"
 	"net/http"
 	"path/filepath"
@@ -12,17 +13,17 @@ import (
 	"github.com/mfmayer/undostack"
 	"golang.org/x/text/language"
 	"golang.org/x/text/language/display"
+	"golang.org/x/text/message"
 )
-
-func init() {
-}
 
 type Archive struct {
 	path            string
+	printer         *message.Printer
 	currentLanguage language.Tag
 	languages       []language.Tag
 	languageMatcher language.Matcher
 	undoStack       undostack.UndoStack
+	logs            []*api.Log
 }
 
 func NewArchive(path string) (arc *Archive) {
@@ -34,6 +35,7 @@ func NewArchive(path string) (arc *Archive) {
 			language.German,
 		},
 	}
+	arc.printer = message.NewPrinter(arc.currentLanguage)
 	arc.languageMatcher = language.NewMatcher(arc.languages)
 	return
 }
@@ -102,6 +104,12 @@ func (arc *Archive) renameTag(from string, to string) (err error) {
 	// create rename operation and its actions
 	renameOperation := &undostack.Operation{
 		Name: "Rename",
+		DoErrorFormat: func(e []error) string {
+			return fmt.Sprintf("Renaming %s to %s failed", from, to)
+		},
+		UndoErrorFormat: func(e []error) string {
+			return fmt.Sprintf("Renaming %s to %s failed", to, from)
+		},
 	}
 	renameEntries := [][]string{
 		files, dirs, // first rename files, then directories
@@ -142,6 +150,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 				Name: display.Self.Name(arc.currentLanguage),
 			},
 			UndoRedoCount: []int{undoCount, redoCount},
+			Logs:          arc.logs,
 		}
 		for _, t := range arc.languages {
 			rs.Languages = append(rs.Languages, api.Language{
@@ -160,6 +169,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 				Name: display.Self.Name(arc.currentLanguage),
 			},
 		}
+		arc.printer = message.NewPrinter(arc.currentLanguage)
 		code = http.StatusOK
 		return
 	}))
@@ -190,7 +200,11 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 			UndoRedoCount: []int{undoCount, redoCount},
 		}
 		if err != nil {
+			arc.logs = append(arc.logs, errToLog(err))
+			rs.Logs = arc.logs
 			rs.Notification.Message = err.Error()
+			rs.Notification.Color = "red"
+			rs.Notification.MultiLine = true
 		}
 		code = http.StatusOK
 		return
@@ -205,7 +219,11 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 			UndoRedoCount: []int{undoCount, redoCount},
 		}
 		if err != nil {
+			arc.logs = append(arc.logs, errToLog(err))
+			rs.Logs = arc.logs
 			rs.Notification.Message = err.Error()
+			rs.Notification.Color = "red"
+			rs.Notification.MultiLine = true
 		}
 		code = http.StatusOK
 		return
@@ -220,7 +238,11 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 			UndoRedoCount: []int{undoCount, redoCount},
 		}
 		if err != nil {
+			arc.logs = append(arc.logs, errToLog(err))
+			rs.Logs = arc.logs
 			rs.Notification.Message = err.Error()
+			rs.Notification.Color = "red"
+			rs.Notification.MultiLine = true
 		}
 		code = http.StatusOK
 		return
