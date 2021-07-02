@@ -17,8 +17,8 @@ github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brv
 github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+lD48awMYo=
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
 github.com/mattn/go-runewidth v0.0.10/go.mod h1:RAqKPSqVFrSLVXbA8x7dzmKdmGzieGRCM46jaSJTDAk=
-github.com/mfmayer/undostack v0.0.4 h1:M0/eWhGPx5Sl8IMIaUuT92xtVmQSlEmExH7uhnjHr9w=
-github.com/mfmayer/undostack v0.0.4/go.mod h1:tXgIAkXyoFO8nVVZlffO4q+Q745sLtKX8lgV/kJWzZY=
+github.com/mfmayer/undostack v0.0.6 h1:EKVELLLX2BeHs1M4wZ9MWxKRpCGmGa1aLi5NF10/nLQ=
+github.com/mfmayer/undostack v0.0.6/go.mod h1:tXgIAkXyoFO8nVVZlffO4q+Q745sLtKX8lgV/kJWzZY=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rivo/uniseg v0.1.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=

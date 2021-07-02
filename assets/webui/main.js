@@ -151,7 +151,7 @@ var app = new Vue({
           </template>
   
           <template v-slot:after>
-            <log-list>
+            <log-list ref="logList">
             </log-list>
           </template>
   

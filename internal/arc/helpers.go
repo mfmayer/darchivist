@@ -1,6 +1,7 @@
 package arc
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
+	"github.com/mfmayer/darchivist/internal/api"
 )
 
 func walkArchive(archivePath string, fn func(absPath string, relPath string, d fs.DirEntry, err error) error) error {
@@ -117,6 +119,24 @@ func renameTagInBaseName(baseName, from, to string, isFile bool) (renamed string
 	renamed = strings.Join(newTags, " ")
 	if isFile {
 		renamed = renamed + "." + ext
+	}
+	return
+}
+
+func errToLog(err error) (log *api.Log) {
+	//var multiErr *multierror.Error
+	if err != nil {
+		log = &api.Log{
+			Time:  time.Now(),
+			Label: err.Error(),
+		}
+		for err = errors.Unwrap(err); err != nil; err = errors.Unwrap(err) {
+			faErr := &FileActionError{}
+			if errors.As(err, &faErr) {
+				log.SubLabels = append(log.SubLabels, faErr.Error())
+				log.Files = append(log.Files, faErr.FilePaths...)
+			}
+		}
 	}
 	return
 }
