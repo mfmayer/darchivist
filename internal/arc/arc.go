@@ -1,7 +1,6 @@
 package arc
 
 import (
-	"fmt"
 	"io/fs"
 	"net/http"
 	"path/filepath"
@@ -105,10 +104,10 @@ func (arc *Archive) renameTag(from string, to string) (err error) {
 	renameOperation := &undostack.Operation{
 		Name: "Rename",
 		DoErrorFormat: func(e []error) string {
-			return fmt.Sprintf("Renaming %s to %s failed", from, to)
+			return arc.printer.Sprintf("Renaming %s to %s failed", from, to)
 		},
 		UndoErrorFormat: func(e []error) string {
-			return fmt.Sprintf("Renaming %s to %s failed", to, from)
+			return arc.printer.Sprintf("Renaming %s to %s failed", to, from)
 		},
 	}
 	renameEntries := [][]string{

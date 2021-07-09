@@ -3,7 +3,33 @@ package arc
 import (
 	"fmt"
 	"os"
+
+	"golang.org/x/text/message"
 )
+
+type TranslateError struct {
+	format string
+	a      []interface{}
+}
+
+func (ta *TranslateError) Error() string {
+	return ta.Translate(nil)
+}
+
+func (ta *TranslateError) Translate(printer *message.Printer) string {
+	if printer != nil {
+		return printer.Sprintf(ta.format, ta.a...)
+	}
+	return fmt.Sprintf(ta.format, ta.a...)
+}
+
+func TranslateErrorf(format string, a ...interface{}) error {
+	ta := &TranslateError{
+		format: format,
+		a:      a,
+	}
+	return ta
+}
 
 type FileActionError struct {
 	FilePaths []string
@@ -22,13 +48,13 @@ func rename(oldPath, newPath string) error {
 	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
 		return &FileActionError{
 			FilePaths: []string{oldPath},
-			Err:       fmt.Errorf("%s does not exist", oldPath),
+			Err:       TranslateErrorf("%s does not exist", oldPath),
 		}
 	}
 	if _, err := os.Stat(newPath); !os.IsNotExist(err) {
 		return &FileActionError{
 			FilePaths: []string{oldPath, newPath},
-			Err:       fmt.Errorf("%s already exists", newPath),
+			Err:       TranslateErrorf("%s already exists", newPath),
 		}
 	}
 	err := os.Rename(oldPath, newPath)
