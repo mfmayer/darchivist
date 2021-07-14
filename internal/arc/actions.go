@@ -48,7 +48,7 @@ func rename(oldPath, newPath string) error {
 	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
 		return &FileActionError{
 			FilePaths: []string{oldPath},
-			Err:       TranslateErrorf("%s does not exist", oldPath),
+			Err:       TranslateErrorf("%s not found", oldPath),
 		}
 	}
 	if _, err := os.Stat(newPath); !os.IsNotExist(err) {

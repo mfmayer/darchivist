@@ -10,6 +10,7 @@ import (
 
 	"github.com/araddon/dateparse"
 	"github.com/mfmayer/darchivist/internal/api"
+	"golang.org/x/text/message"
 )
 
 func walkArchive(archivePath string, fn func(absPath string, relPath string, d fs.DirEntry, err error) error) error {
@@ -123,20 +124,32 @@ func renameTagInBaseName(baseName, from, to string, isFile bool) (renamed string
 	return
 }
 
-func errToLog(err error) (log *api.Log) {
+func errorToLog(errLogEntry *errorLogEntry, printer *message.Printer) (log *api.Log) {
 	//var multiErr *multierror.Error
-	if err != nil {
+	if errLogEntry != nil {
 		log = &api.Log{
-			Time:  time.Now(),
-			Label: err.Error(),
+			Time:  errLogEntry.time,
+			Label: errLogEntry.err.Error(),
 		}
-		for err = errors.Unwrap(err); err != nil; err = errors.Unwrap(err) {
+		for err := errors.Unwrap(errLogEntry.err); err != nil; err = errors.Unwrap(err) {
 			faErr := &FileActionError{}
+			trErr := &TranslateError{}
 			if errors.As(err, &faErr) {
-				log.SubLabels = append(log.SubLabels, faErr.Error())
 				log.Files = append(log.Files, faErr.FilePaths...)
 			}
+			if errors.As(err, &trErr) {
+				log.SubLabels = append(log.SubLabels, trErr.Translate(printer))
+			} else {
+				log.SubLabels = append(log.SubLabels, err.Error())
+			}
 		}
+	}
+	return
+}
+
+func errorsToLogs(errLogEntries []*errorLogEntry, printer *message.Printer) (logs []*api.Log) {
+	for _, entry := range errLogEntries {
+		logs = append(logs, errorToLog(entry, printer))
 	}
 	return
 }

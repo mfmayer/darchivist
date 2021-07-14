@@ -14,8 +14,6 @@ import (
 	"github.com/mfmayer/darchivist/internal/vfs/vfswebui"
 )
 
-//go:generate go run internal/vfs/generate_vfswebui.go
-
 var listenUiAddr = flag.String("listen", ":9055", "Listen address and port")
 var archivePath = flag.String("path", os.Getenv("DARCHIVE_PATH"), "Path to the documents archive (can also be set by environment varaible DARCHIVE_PATH)")
 

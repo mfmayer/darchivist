@@ -15,6 +15,11 @@ import (
 	"golang.org/x/text/message"
 )
 
+type errorLogEntry struct {
+	time time.Time
+	err  error
+}
+
 type Archive struct {
 	path            string
 	printer         *message.Printer
@@ -22,7 +27,7 @@ type Archive struct {
 	languages       []language.Tag
 	languageMatcher language.Matcher
 	undoStack       undostack.UndoStack
-	logs            []*api.Log
+	errorLogs       []*errorLogEntry
 }
 
 func NewArchive(path string) (arc *Archive) {
@@ -149,7 +154,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 				Name: display.Self.Name(arc.currentLanguage),
 			},
 			UndoRedoCount: []int{undoCount, redoCount},
-			Logs:          arc.logs,
+			Logs:          errorsToLogs(arc.errorLogs, arc.printer),
 		}
 		for _, t := range arc.languages {
 			rs.Languages = append(rs.Languages, api.Language{
@@ -162,13 +167,14 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 	}))
 	r.Post("/setLanguage", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
 		arc.currentLanguage, _ = language.MatchStrings(arc.languageMatcher, rq.LanguageTag)
+		arc.printer = message.NewPrinter(arc.currentLanguage)
 		rs = &api.Response{
 			CurrentLanguage: api.Language{
 				Tag:  arc.currentLanguage.String(),
 				Name: display.Self.Name(arc.currentLanguage),
 			},
+			Logs: errorsToLogs(arc.errorLogs, arc.printer),
 		}
-		arc.printer = message.NewPrinter(arc.currentLanguage)
 		code = http.StatusOK
 		return
 	}))
@@ -199,8 +205,10 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 			UndoRedoCount: []int{undoCount, redoCount},
 		}
 		if err != nil {
-			arc.logs = append(arc.logs, errToLog(err))
-			rs.Logs = arc.logs
+			//arc.logs = append(arc.logs, errToLog(err))
+			errLogEntry := &errorLogEntry{time.Now(), err}
+			arc.errorLogs = append(arc.errorLogs, errLogEntry)
+			rs.Logs = append(rs.Logs, errorToLog(errLogEntry, arc.printer))
 			rs.Notification.Message = err.Error()
 			rs.Notification.Color = "red"
 			rs.Notification.MultiLine = true
@@ -218,8 +226,9 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 			UndoRedoCount: []int{undoCount, redoCount},
 		}
 		if err != nil {
-			arc.logs = append(arc.logs, errToLog(err))
-			rs.Logs = arc.logs
+			errLogEntry := &errorLogEntry{time.Now(), err}
+			arc.errorLogs = append(arc.errorLogs, errLogEntry)
+			rs.Logs = append(rs.Logs, errorToLog(errLogEntry, arc.printer))
 			rs.Notification.Message = err.Error()
 			rs.Notification.Color = "red"
 			rs.Notification.MultiLine = true
@@ -237,8 +246,9 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 			UndoRedoCount: []int{undoCount, redoCount},
 		}
 		if err != nil {
-			arc.logs = append(arc.logs, errToLog(err))
-			rs.Logs = arc.logs
+			errLogEntry := &errorLogEntry{time.Now(), err}
+			arc.errorLogs = append(arc.errorLogs, errLogEntry)
+			rs.Logs = append(rs.Logs, errorToLog(errLogEntry, arc.printer))
 			rs.Notification.Message = err.Error()
 			rs.Notification.Color = "red"
 			rs.Notification.MultiLine = true
