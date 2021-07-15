@@ -61,10 +61,10 @@ function updateAppData (app, response) {
   }
   if (response.logs !== undefined) {
     Object.freeze(response.logs)
-    for (var i = 0; i < response.logs.length; i++) {
+    for (var i = response.logs.length - 1; i >= 0; i--) {
       response.logs[i].time = new Date(response.logs[i].time);
+      app.$refs.logList.logs.unshift(response.logs[i])
     }
-    app.$refs.logList.logs = response.logs.slice().reverse()
   }
 }
 
