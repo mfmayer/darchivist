@@ -149,7 +149,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 			Title:       "DArchivist",
 			Version:     "v0.0.1",
 			ArchivePath: arc.Path(),
-			CurrentLanguage: api.Language{
+			CurrentLanguage: &api.Language{
 				Tag:  arc.currentLanguage.String(),
 				Name: display.Self.Name(arc.currentLanguage),
 			},
@@ -169,7 +169,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 		arc.currentLanguage, _ = language.MatchStrings(arc.languageMatcher, rq.LanguageTag)
 		arc.printer = message.NewPrinter(arc.currentLanguage)
 		rs = &api.Response{
-			CurrentLanguage: api.Language{
+			CurrentLanguage: &api.Language{
 				Tag:  arc.currentLanguage.String(),
 				Name: display.Self.Name(arc.currentLanguage),
 			},

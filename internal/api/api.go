@@ -97,7 +97,7 @@ type Response struct {
 	Title           string        `json:"title,omitempty"`
 	Version         string        `json:"version,omitempty"`
 	ArchivePath     string        `json:"archivePath,omitempty"`
-	CurrentLanguage Language      `json:"currentLanguage,omitempty"`
+	CurrentLanguage *Language     `json:"currentLanguage,omitempty"`
 	Languages       []Language    `json:"languages,omitempty"`
 	UndoRedoCount   []int         `json:"undoRedoCount,omitempty"`
 	Tags            []string      `json:"tags,omitempty"`

@@ -29,7 +29,6 @@ const MainMenu = {
       }
       API.post("setLanguage", rq).then(response => {
         if (response !== undefined) {
-          this.currentLanguage = response.currentLanguage
           this.languageExpanded = false
         }
       }).catch(this.apiCallFailed)
@@ -40,8 +39,6 @@ const MainMenu = {
           this.title = response.title
           this.version = response.version
           this.archivePath = response.archivePath
-          this.currentLanguage = response.currentLanguage
-          this.languages = response.languages
         }
       }).catch(this.apiCallFailed)
     },

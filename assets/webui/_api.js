@@ -59,12 +59,26 @@ function updateAppData (app, response) {
     Object.freeze(response.tags)
     app.tags = response.tags
   }
-  if (response.logs !== undefined) {
+  if (response.languages !== undefined) {
+    app.$refs.mainMenu.languages = response.languages
+  }
+  if (response.currentLanguage !== undefined) {
+    app.$refs.mainMenu.currentLanguage = response.currentLanguage
+    // also handle loglist that should contain translated log messages
+    if (response.logs !== undefined) {
+      Object.freeze(response.logs)
+      for (var i = 0; i < response.logs.length; i++) {
+        response.logs[i].time = new Date(response.logs[i].time);
+      }
+      app.$refs.logList.logs = response.logs.slice().reverse()
+    }
+  } else if (response.logs !== undefined) {
     Object.freeze(response.logs)
     for (var i = response.logs.length - 1; i >= 0; i--) {
       response.logs[i].time = new Date(response.logs[i].time);
       app.$refs.logList.logs.unshift(response.logs[i])
     }
+    //app.$refs.logList.logs = response.logs.slice().reverse()
   }
 }
 
