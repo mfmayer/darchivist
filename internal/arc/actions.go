@@ -3,6 +3,7 @@ package arc
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"golang.org/x/text/message"
 )
@@ -48,13 +49,13 @@ func rename(oldPath, newPath string) error {
 	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
 		return &FileActionError{
 			FilePaths: []string{oldPath},
-			Err:       TranslateErrorf("%s not found", oldPath),
+			Err:       TranslateErrorf("%s not found", path.Base(oldPath)),
 		}
 	}
 	if _, err := os.Stat(newPath); !os.IsNotExist(err) {
 		return &FileActionError{
 			FilePaths: []string{oldPath, newPath},
-			Err:       TranslateErrorf("%s already exists", newPath),
+			Err:       TranslateErrorf("%s already exists", path.Base(newPath)),
 		}
 	}
 	err := os.Rename(oldPath, newPath)
