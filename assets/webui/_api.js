@@ -89,7 +89,9 @@ function InitAPI (apiURL, app) {
           return response
         },
         error => {
-          app.$q.notify('Looks like there was an API problem: ' + error)
+          if (error.name != "AbortError") {
+            app.$q.notify('Looks like there was an API problem: ' + error)
+          }
         })
     },
     post: function (path, object, abortController) {
@@ -99,7 +101,9 @@ function InitAPI (apiURL, app) {
           return response
         },
         error => {
-          app.$q.notify('Looks like there was an API problem: ' + error)
+          if (error.name != "AbortError") {
+            app.$q.notify('Looks like there was an API problem: ' + error)
+          }
         })
     }
   }
