@@ -12,7 +12,7 @@ const LogList = {
   data: function () {
     return {
       link: "bla",
-      activeLogIndex: null,
+      activeLogRef: "",
       logs: [
         // {
         //   label: "Action 1 failed",
@@ -45,16 +45,18 @@ const LogList = {
       this.$emit('logSelected', files)
     },
     expanded: function (item, index) {
-      if (this.activeLogIndex !== null && index != this.activeLogIndex) {
-        this.$refs["log-" + this.activeLogIndex].hide()
+      let ref = "log-" + (this.logs.length - index)
+      if (this.activeLogRef !== "" && ref != this.activeLogRef) {
+        let el = this.$refs[this.activeLogRef]
+        el.hide()
       }
-      this.activeLogIndex = index
+      this.activeLogRef = ref
     }
   },
   watch: {
     logs: {
       handler (newVal, oldVal) {
-        this.activeLogIndex = null
+        // this.activeLogIndex = null
       }
     }
   },
@@ -65,7 +67,7 @@ const LogList = {
     <q-virtual-scroll :items="logs" scroll-target="#scroll-area-with-virtual-scroll-logs > .scroll"
       :virtual-scroll-item-size="24">
       <template v-slot="{item, index}">
-        <q-expansion-item expand-separator :active="link === index" @click="link=index" :key="index" :ref="'log-'+index"
+        <q-expansion-item expand-separator :active="false" :key="logs.length-index" :ref="'log-'+(logs.length-index)"
           :content-inset-level="0.25" :label="item.label" :caption="item.time.toLocaleString()"
           @show="expanded(item,index)">
           <q-item v-for="(subLabel,subLabelIdx) in item.subLabels" :key="subLabelIdx" clickable dense>
