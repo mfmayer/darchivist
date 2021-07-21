@@ -189,7 +189,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 		// }
 		tags, files := arc.find(rq.TagsFilter, rq.SelectedTags)
 		rs = &api.Response{
-			Tags:  tags,
+			Tags:  &tags,
 			Files: files,
 		}
 		code = http.StatusOK
