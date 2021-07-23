@@ -39,7 +39,10 @@ var app = new Vue({
     'log-list': LogList,
   },
   data: {
-    splitterModel: 50,
+    splitterModel: {
+      current: 100,
+      last: 50
+    },
     showTaglist: true,
     tagFilter: "",
     selectedTags: [],
@@ -96,6 +99,14 @@ var app = new Vue({
     },
     languageChanged: function (language) {
       i18n.locale = language
+    },
+    showHideLogs: function() {
+      if (this.splitterModel.current == 100) {
+        this.splitterModel.current = this.splitterModel.last
+      } else {
+        this.splitterModel.last = this.splitterModel.current
+        this.splitterModel.current = 100
+      }
     }
   },
   watch: {
@@ -142,12 +153,17 @@ var app = new Vue({
       <tag-list :tags="tags" @tagSelected="tagSelected" @modified="refresh"></tag-list>
     </q-drawer>
   
-    <q-page-container class="fit">
+    <q-page-container class="fit no-scroll">
       <q-page class="fit">
-        <q-splitter v-model="splitterModel" horizontal class="fit">
+        <q-splitter v-model="splitterModel.current" :limits="[0,100]" horizontal class="fit">
   
           <template v-slot:before>
             <file-list :files="files"></file-list>
+          </template>
+  
+          <template v-slot:separator>
+            <!-- <q-avatar color="primary" text-color="white" size="40px" icon="drag_handle" /> -->
+            <q-btn round color="primary" icon="unfold_more" @click="showHideLogs" draggable="false" />
           </template>
   
           <template v-slot:after>
