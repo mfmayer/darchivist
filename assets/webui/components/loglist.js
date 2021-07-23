@@ -63,18 +63,15 @@ const LogList = {
   mounted: function () {
   },
   template: String.raw`
-  <q-scroll-area id="scroll-area-with-virtual-scroll-logs" style="height: calc(100% - 0px); margin-top: 0px">
-    <q-virtual-scroll :items="logs" scroll-target="#scroll-area-with-virtual-scroll-logs > .scroll"
-      :virtual-scroll-item-size="24">
+  <q-scroll-area id="scroll-area-with-virtual-scroll-logs" style="height: calc(100% - 0px); margin-top: 0px; overflow: hidden;">
+    <q-virtual-scroll :items="logs" :virtual-scroll-item-size="24">
       <template v-slot="{item, index}">
         <q-expansion-item expand-separator :active="false" :key="logs.length-index" :ref="'log-'+(logs.length-index)"
           :content-inset-level="0.25" :label="item.label" :caption="item.time.toLocaleString()"
           @show="expanded(item,index)">
           <q-item v-for="(subLabel,subLabelIdx) in item.subLabels" :key="subLabelIdx" clickable dense>
             <q-item-section>
-              <q-item-label lines="1">
-                {{subLabel}}
-              </q-item-label>
+              {{subLabel}}
             </q-item-section>
           </q-item>
         </q-expansion-item>
