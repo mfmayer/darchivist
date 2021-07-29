@@ -76,7 +76,7 @@ func (arc *Archive) find(filterString string, selectedTags []string) (tags []str
 		}
 		return nil
 	})
-	tags = tagSet.Slice(filterString, true)
+	tags = tagSet.Slice(filterString, arc.currentLanguage, true)
 	return
 }
 

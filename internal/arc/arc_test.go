@@ -3,6 +3,8 @@ package arc
 import (
 	"os"
 	"testing"
+
+	"golang.org/x/text/language"
 )
 
 func TestTags(t *testing.T) {
@@ -25,7 +27,8 @@ func TestFiles(t *testing.T) {
 
 func TestStringSet(t *testing.T) {
 	tags := StringSet{}
-	tags.Add("Welt")
-	tags.Add("Hallo")
-	t.Log(tags.Slice("", true))
+	tags.Add("Küche")
+	tags.Add("Kueche")
+	tags.Add("Wohnzimmer")
+	t.Log(tags.Slice("ü", language.German, true))
 }
