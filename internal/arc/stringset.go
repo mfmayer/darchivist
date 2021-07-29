@@ -2,9 +2,10 @@ package arc
 
 import (
 	"sort"
-	"strings"
 
 	"github.com/agnivade/levenshtein"
+	"golang.org/x/text/language"
+	"golang.org/x/text/search"
 )
 
 type StringSet map[string]struct{}
@@ -42,13 +43,23 @@ func (s StringSet) AddSets(sets ...StringSet) {
 	}
 }
 
-func (s StringSet) Slice(filter string, sorted bool) []string {
+// Slice the map and return filtered/sorted slice
+func (s StringSet) Slice(filter string, languageTag language.Tag, sorted bool) []string {
+	contains := func(str string, substr string) bool {
+		m := search.New(languageTag, search.IgnoreCase, search.IgnoreDiacritics)
+		start, end := m.IndexString(str, substr)
+		if start != -1 && end != -1 {
+			return true
+		}
+		return false
+	}
 	slice := make([]string, len(s))
 	{
+
 		i := 0
 		for str := range s {
 			if filter != "" {
-				if !strings.Contains(str, filter) {
+				if !contains(str, filter) {
 					continue
 				}
 			}
