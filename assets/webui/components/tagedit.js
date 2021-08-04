@@ -17,6 +17,9 @@ const TagEdit = {
     apiCallFailed: function (error) {
       this.$q.notify('Looks like there was an API problem: ' + error)
     },
+    show: function() {
+      this.$refs.popup.show()
+    },
     cancel: function () {
       this.renamedTag = this.tag
       this.$refs.popup.hide()
@@ -45,7 +48,7 @@ const TagEdit = {
     }
   },
   template: String.raw`
-<q-popup-proxy cover anchor="top left" ref="popup">
+<q-popup-proxy cover anchor="top left" no-parent-event ref="popup">
   <div class="column q-banner">
     <q-input dense v-model="renamedTag" autofocus></q-input>
     <div dense class="q-py-md q-gutter-sm">
