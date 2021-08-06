@@ -17,12 +17,16 @@ const TagEdit = {
     apiCallFailed: function (error) {
       this.$q.notify('Looks like there was an API problem: ' + error)
     },
-    show: function() {
+    show: function () {
+      this.renamedTag = this.tag
       this.$refs.popup.show()
     },
     cancel: function () {
-      this.renamedTag = this.tag
-      this.$refs.popup.hide()
+      if (this.renamedTag !== this.tag) {
+        this.renamedTag = this.tag
+      } else {
+        this.$refs.popup.hide()
+      }
     },
     renameTag: function () {
       if (this.renamedTag === "") {
@@ -49,14 +53,24 @@ const TagEdit = {
   },
   template: String.raw`
 <q-popup-proxy cover anchor="top left" no-parent-event ref="popup">
-  <div class="column q-banner">
+  <q-item>
+    <q-item-section>
+    <q-input v-model="renamedTag" dense borderless hide-bottom-space autofocus>
+      <template v-slot:append>
+        <q-icon name="close" @click="cancel()" class="cursor-pointer"></q-icon>
+        <q-icon v-if="renamedTag !== tag" name="check" @click="renameTag" class="cursor-pointer"></q-icon>
+      </template>
+    </q-input>
+    </q-item-section>
+  </q-item>
+  <!-- <div class="column q-banner">
     <q-input dense v-model="renamedTag" autofocus></q-input>
     <div dense class="q-py-md q-gutter-sm">
       <q-btn round color="secondary" icon="done" @click="renameTag"></q-btn>
       <q-btn round color="secondary" icon="close" @click="cancel"></q-btn>
       <q-btn round color="red" icon="delete" class="float-right" @click="confirmDelete=true"></q-btn>
     </div>
-  </div>
+  </div> -->
   <q-dialog v-model="confirmDelete" persistent>
     <q-card>
       <q-card-section class="row items-center">
