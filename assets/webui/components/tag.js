@@ -67,6 +67,23 @@ const Tag = {
         {{tag}}
       </q-item-label>
     </q-item-section>
+    <q-item-section clickable side>
+      <q-btn class="gt-xs" size="12px" flat dense round icon="more_vert" @click.stop="">
+        <q-menu>
+          <q-list style="min-width: 100px">
+            <q-item clickable v-close-popup>
+              <q-item-section>{{ $t("ui.assign") }}</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="showRenamePopup">
+              <q-item-section>{{ $t("ui.rename") }}</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="confirmDelete=true">
+              <q-item-section>{{ $t("ui.delete") }}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
+    </q-item-section>
     <q-popup-proxy cover anchor="top left" no-parent-event ref="renamePopup">
       <q-item>
         <q-item-section>
@@ -78,16 +95,6 @@ const Tag = {
           </q-input>
         </q-item-section>
       </q-item>
-      <!--
-          <div class="column q-banner">
-            <q-input dense v-model="renamedTag" autofocus></q-input>
-            <div dense class="q-py-md q-gutter-sm">
-              <q-btn round color="secondary" icon="done" @click="renameTag"></q-btn>
-              <q-btn round color="secondary" icon="close" @click="cancel"></q-btn>
-              <q-btn round color="red" icon="delete" class="float-right" @click="confirmDelete=true"></q-btn>
-            </div>
-          </div>
-        -->
     </q-popup-proxy>
     <q-dialog v-model="confirmDelete" persistent>
       <q-card>
@@ -105,23 +112,6 @@ const Tag = {
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-item-section clickable side>
-      <q-btn flat round dense icon="more_vert" @click.stop="">
-        <q-menu>
-          <q-list style="min-width: 100px">
-            <q-item clickable v-close-popup>
-              <q-item-section>{{ $t("ui.assign") }}</q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="showRenamePopup">
-              <q-item-section>{{ $t("ui.rename") }}</q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="confirmDelete=true">
-              <q-item-section>{{ $t("ui.delete") }}</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-btn>
-    </q-item-section>
   </q-item>`
 }
 

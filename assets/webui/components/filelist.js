@@ -1,28 +1,21 @@
 var API
-//import { FileEdit } from './filedit.js'
+
+import { File } from './file.js'
 
 const FileList = {
   init: function (_API) {
     API = _API
+    File.init(API)
     //FileEdit.init(API)
   },
   components: {
-    //'tag-edit': TagEdit,
+    'file': File,
   },
   props: {
     files: Array
   },
   data: function () {
-    return {
-      pagination: {
-        rowsPerPage: 0
-      },
-
-      columns: [
-        // { name: 'index', label: '#', align: 'left', field: 'index' },
-        { name: 'name', label: 'name', align: 'left', field: row => row.name },
-      ]
-    }
+    return {}
   },
   methods: {
     // fileSelected: function (tag) {
@@ -30,11 +23,18 @@ const FileList = {
     // }
   },
   template: String.raw`
-  <div style="height: calc(100% - 0px); margin-top: 0px;">
-    <q-table virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" row-key="index" :data="files"
-      :columns="columns" class="fit">
-    </q-table>
+  <div id="fileList" class="scroll" style="height: calc(100% - 0px); margin-top: 0px;">
+    <!-- <q-table virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" row-key="index" :data="files"
+          :columns="columns" class="fit">
+        </q-table> -->
+
+    <q-virtual-scroll :items="files" scroll-target="#fileList" :virtual-scroll-item-size="48">
+      <template v-slot="{item, index}">
+        <file :file="item"></file>
+      </template>
+    </q-virtual-scroll>
   </div>
+
 `,
 }
 
