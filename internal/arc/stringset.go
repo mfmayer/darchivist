@@ -5,7 +5,6 @@ import (
 
 	"github.com/agnivade/levenshtein"
 	"golang.org/x/text/language"
-	"golang.org/x/text/search"
 )
 
 type StringSet map[string]struct{}
@@ -43,23 +42,47 @@ func (s StringSet) AddSets(sets ...StringSet) {
 	}
 }
 
-// Slice the map and return filtered/sorted slice
-func (s StringSet) Slice(filter string, languageTag language.Tag, sorted bool) []string {
-	contains := func(str string, substr string) bool {
-		m := search.New(languageTag, search.IgnoreCase, search.IgnoreDiacritics)
-		start, end := m.IndexString(str, substr)
-		if start != -1 && end != -1 {
-			return true
+type sliceOption struct {
+	//filter                 string
+	//languageTag            language.Tag
+	containsFilter         func(s string) bool
+	sortedByStringDistance string
+}
+
+type SliceOption func(*sliceOption)
+
+func WithContainsFilter(filter string, languageTag language.Tag) SliceOption {
+	return func(so *sliceOption) {
+		if filter != "" {
+			so.containsFilter = containsFunc(filter, languageTag)
 		}
-		return false
+	}
+}
+
+func WithStringDistanceSort(comp string) SliceOption {
+	return func(so *sliceOption) {
+		if comp != "" {
+			so.sortedByStringDistance = comp
+		}
+	}
+}
+
+// Slice the map and return filtered/sorted slice
+//func (s StringSet) Slice(filter string, languageTag language.Tag, sorted bool) []string {
+func (s StringSet) Slice(opts ...SliceOption) []string {
+	so := &sliceOption{
+		containsFilter:         nil,
+		sortedByStringDistance: "",
+	}
+	for _, opt := range opts {
+		opt(so)
 	}
 	slice := make([]string, len(s))
 	{
-
 		i := 0
 		for str := range s {
-			if filter != "" {
-				if !contains(str, filter) {
+			if so.containsFilter != nil {
+				if !so.containsFilter(str) {
 					continue
 				}
 			}
@@ -68,15 +91,15 @@ func (s StringSet) Slice(filter string, languageTag language.Tag, sorted bool) [
 		}
 		slice = slice[:i]
 	}
-	if sorted {
-		if len(filter) > 0 {
+	if so.sortedByStringDistance != "" {
+		if len(so.sortedByStringDistance) > 0 {
 			sort.Sort(StringDistanceSortInterface{
 				slice: slice,
-				comp:  filter,
+				comp:  so.sortedByStringDistance,
 			})
-		} else {
-			sort.Strings(slice)
 		}
+	} else {
+		sort.Strings(slice)
 	}
 	return slice
 }

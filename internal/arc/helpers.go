@@ -10,8 +10,22 @@ import (
 
 	"github.com/araddon/dateparse"
 	"github.com/mfmayer/darchivist/internal/api"
+	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"golang.org/x/text/search"
 )
+
+func containsFunc(filter string, languageTag language.Tag) func(s string) bool {
+	fn := func(s string) bool {
+		m := search.New(languageTag, search.IgnoreCase, search.IgnoreDiacritics)
+		start, end := m.IndexString(s, filter)
+		if start != -1 && end != -1 {
+			return true
+		}
+		return false
+	}
+	return fn
+}
 
 func walkArchive(archivePath string, fn func(absPath string, relPath string, d fs.DirEntry, err error) error) error {
 	return filepath.WalkDir(archivePath, func(absPath string, de fs.DirEntry, err error) error {
@@ -27,21 +41,27 @@ func walkArchive(archivePath string, fn func(absPath string, relPath string, d f
 	})
 }
 
-func getTags(name string, preparedSet StringSet) (dateTime *time.Time, tagSet StringSet) {
+// Tags parses and returns element's tags and timestamp if available
+func Tags(element string, isDir bool, preparedSet StringSet) (date time.Time, tagSet StringSet) {
 	if preparedSet != nil {
 		tagSet = preparedSet
 	} else {
 		tagSet = StringSet{}
 	}
+	// Replace path separators with space
+	if !isDir {
+		element, _ = splitExtension(element)
+	}
+	e := strings.ReplaceAll(element, string(os.PathSeparator), " ")
 	// Split into tags separated by " "
-	tags := strings.Split(name, " ")
+	tags := strings.Split(e, " ")
 	for _, tag := range tags {
 		if tag == "" {
 			continue
 		}
-		if dateTime == nil {
+		if date.IsZero() {
 			if t, err := dateparse.ParseAny(tag); err == nil {
-				dateTime = &t
+				date = t
 				continue
 			}
 		}
@@ -58,7 +78,7 @@ func splitExtension(base string) (baseWithoutExtension string, extension string)
 	return
 }
 
-func entryDetails(path string, de fs.DirEntry, deepTagSet bool) (dateTime *time.Time, fileExtension string, tagSet StringSet) {
+func entryDetails(path string, de fs.DirEntry, deepTagSet bool) (dateTime time.Time, fileExtension string, tagSet StringSet) {
 	tagSet = StringSet{}
 	name := de.Name()
 	if de.Type().IsRegular() {
@@ -70,15 +90,10 @@ func entryDetails(path string, de fs.DirEntry, deepTagSet bool) (dateTime *time.
 		return
 	}
 	if deepTagSet {
-		p := strings.ReplaceAll(path, string(os.PathSeparator), " ")
-		_, tagSet = getTags(p, tagSet)
+		_, tagSet = Tags(path, de.IsDir(), tagSet)
 	}
-	dateTime, tagSet = getTags(name, tagSet)
+	dateTime, tagSet = Tags(name, de.IsDir(), tagSet)
 	return
-}
-
-func (arc *Archive) Path() string {
-	return arc.path
 }
 
 func foundAll(values []string, sets ...StringSet) bool {

@@ -1,14 +1,18 @@
 package arc
 
 import (
+	"fmt"
 	"io/fs"
 	"net/http"
+	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/mfmayer/darchivist/internal/api"
+	"github.com/mfmayer/darchivist/internal/log"
 	"github.com/mfmayer/undostack"
 	"golang.org/x/text/language"
 	"golang.org/x/text/language/display"
@@ -21,7 +25,7 @@ type errorLogEntry struct {
 }
 
 type Archive struct {
-	path            string
+	path            string // absolute archive path
 	printer         *message.Printer
 	currentLanguage language.Tag
 	languages       []language.Tag
@@ -30,6 +34,7 @@ type Archive struct {
 	errorLogs       []*errorLogEntry
 }
 
+// NewArchive creates Archive object by giving absolute path to where the archive files are located
 func NewArchive(path string) (arc *Archive) {
 	arc = &Archive{
 		path:            path,
@@ -44,39 +49,101 @@ func NewArchive(path string) (arc *Archive) {
 	return
 }
 
+func (arc *Archive) Path() string {
+	return arc.path
+}
+
 // find returns found tags and files based on filterString and selectedTags
-func (arc *Archive) find(filterString string, selectedTags []string) (tags []string, files []api.File) {
+func (arc *Archive) find(filterString string, selectedTags []string) (tags []string, files []api.FileInfo) {
 	tagSet := StringSet{}
 	dirTagSet := StringSet{}
+	var contains func(s string) bool
+	if filterString != "" {
+		contains = containsFunc(filterString, arc.currentLanguage)
+	}
 	walkArchive(arc.path, func(absPath string, relPath string, de fs.DirEntry, err error) error {
 		if err == nil {
 			var fileTagSet StringSet
-			var dateTime *time.Time
-			var fileExtension string
+			// var dateTime *time.Time
+			// var fileExtension string
 			if de.IsDir() {
 				_, _, dirTagSet = entryDetails(relPath, de, true)
 			} else {
-				dateTime, fileExtension, fileTagSet = entryDetails(relPath, de, false)
+				_, _, fileTagSet = entryDetails(relPath, de, false)
 				if foundAll(selectedTags, dirTagSet, fileTagSet) {
 					tagSet.AddSets(dirTagSet, fileTagSet)
-					if fi, err := de.Info(); err == nil {
-						file := api.File{
-							Name:          fi.Name(),
-							FileExtension: fileExtension,
-							Size:          int(fi.Size()),
-							ModTime:       fi.ModTime(),
+					if contains == nil || contains(relPath) {
+						// files = append(files, relPath)
+						if fileInfo, err := arc.FileInfo(relPath); err == nil {
+							files = append(files, fileInfo)
 						}
-						if dateTime != nil {
-							file.Date = *dateTime
-						}
-						files = append(files, file)
 					}
+
+					// 	if _, err := de.Info(); err == nil {
+					// 		file := api.File{
+					// 			Name:          fi.Name(),
+					// 			FileExtension: fileExtension,
+					// 			Size:          int(fi.Size()),
+					// 			ModTime:       fi.ModTime(),
+					// 		}
+					// 	}
+					// }
+					// if _, err := de.Info(); err == nil {
+					// file := api.File{
+					// 	Name:          fi.Name(),
+					// 	FileExtension: fileExtension,
+					// 	Size:          int(fi.Size()),
+					// 	ModTime:       fi.ModTime(),
+					// }
+					// if dateTime != nil {
+					// 	file.Date = *dateTime
+					// }
+					// files = append(files, file)
+					// files = append(files, relPath)
+					// }
 				}
 			}
 		}
 		return nil
 	})
-	tags = tagSet.Slice(filterString, arc.currentLanguage, true)
+	//tags = tagSet.Slice(filterString, arc.currentLanguage, true)
+	tags = tagSet.Slice(WithContainsFilter(filterString, arc.currentLanguage), WithStringDistanceSort(filterString))
+	return
+}
+
+func (arc *Archive) osFileInfo(relPath string) (info os.FileInfo, err error) {
+	if relPath == "" {
+		err = fmt.Errorf("invalid path")
+		return
+	}
+	absPath := filepath.Join(arc.Path(), relPath)
+	relPath, err = filepath.Rel(arc.Path(), absPath)
+	if err != nil {
+		return
+	}
+	if strings.HasPrefix(relPath, "../") {
+		err = fmt.Errorf("file not within archive directory")
+		return
+	}
+	info, err = os.Lstat(absPath)
+	return
+}
+
+func (arc *Archive) FileInfo(relPath string) (fileInfo api.FileInfo, err error) {
+	fi, err := arc.osFileInfo(relPath)
+	if err == nil && fi != nil {
+		name, fileExtension := splitExtension(fi.Name())
+		date, tagSet := Tags(relPath, fi.IsDir(), nil)
+		fileInfo = api.FileInfo{
+			Name:          name,
+			Path:          relPath,
+			FileExtension: fileExtension,
+			Tags:          tagSet.Slice(),
+			Size:          int(fi.Size()),
+			Date:          date,
+			ModTime:       fi.ModTime(),
+		}
+	}
 	return
 }
 
@@ -174,6 +241,18 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 				Name: display.Self.Name(arc.currentLanguage),
 			},
 			Logs: errorsToLogs(arc.errorLogs, arc.printer),
+		}
+		code = http.StatusOK
+		return
+	}))
+	r.Post("/fileInfo", api.PostHandler(func(rq *api.Request) (rs *api.Response, code int) {
+		log.Trace.Printf("fileInfos: %v", rq)
+		rs = &api.Response{}
+		for _, relPath := range rq.FileInfos {
+			fileInfo, err := arc.FileInfo(relPath)
+			if err == nil {
+				rs.Files = append(rs.Files, fileInfo)
+			}
 		}
 		code = http.StatusOK
 		return

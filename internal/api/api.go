@@ -44,7 +44,6 @@ func PostHandler(handleFunc postHandleFunc) func(w http.ResponseWriter, r *http.
 			http.Error(w, "can't unmarshal body", http.StatusBadRequest)
 			return
 		}
-		// rs, code := handleFunc(rq)
 		rs, code := handleFunc(rq)
 		if code != 200 {
 			statusText := http.StatusText(code)
@@ -60,10 +59,12 @@ func PostHandler(handleFunc postHandleFunc) func(w http.ResponseWriter, r *http.
 	}
 }
 
-type File struct {
+type FileInfo struct {
+	Path          string    `json:"path,omitempty"`
 	Name          string    `json:"name,omitempty"`
 	FileExtension string    `json:"fileExtension,omitempty"`
 	Size          int       `json:"size,omitempty"`
+	Tags          []string  `json:"tags,omitempty"`
 	Date          time.Time `json:"date,omitempty"`
 	ModTime       time.Time `json:"modTime,omitempty"`
 }
@@ -101,12 +102,13 @@ type Response struct {
 	Languages       []Language    `json:"languages,omitempty"`
 	UndoRedoCount   []int         `json:"undoRedoCount,omitempty"`
 	Tags            *[]string     `json:"tags,omitempty"`
-	Files           []File        `json:"files,omitempty"`
+	Files           []FileInfo    `json:"files,omitempty"` // File infos
 }
 
 type Request struct {
 	TagsFilter   string            `json:"tagsFilter,omitempty"`
-	SelectedTags []string          `json:"selectedTags,omitempty"`
+	SelectedTags []string          `json:"selectedTags,omitempty"` //
+	FileInfos    []string          `json:"fileInfos,omitempty"`    // File paths for which file infos are requested
 	RenameTag    *RenameTagRequest `json:"renameTag,omitempty"`
 	LanguageTag  string            `json:"languageTag,omitempty"`
 }
