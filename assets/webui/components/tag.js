@@ -11,7 +11,7 @@ const Tag = {
     }
   },
   props: {
-    tag: String
+    tag: Object
   },
   methods: {
     apiCallFailed: function (error) {
@@ -60,11 +60,11 @@ const Tag = {
     }
   },
   template: String.raw`
-  <q-item :key="tag" clickable @click="$emit('selected',tag)">
+  <q-item :key="tag.name" clickable @click="$emit('selected',tag.name)">
     <!-- <tag-edit :tag="item" :ref="'tagEdit' + index" @modified="tagModified(item)"></tag-edit> -->
     <q-item-section>
       <q-item-label lines="1">
-        {{tag}}
+        {{tag.name}}
       </q-item-label>
     </q-item-section>
     <q-item-section clickable side>

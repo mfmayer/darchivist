@@ -11,7 +11,7 @@ func TestTags(t *testing.T) {
 	archive := NewArchive(os.Getenv("DARCHIVE_PATH"))
 	t.Logf("path: %v", archive.Path())
 	//tags, _ := archive.find("", []string{"Versicherung", "Allianz"})
-	tags, _ := archive.find("", []string{})
+	tags, _ := archive.find("", []string{"matthias", "Rechnung"})
 	for _, tag := range tags {
 		t.Logf("\"%s\"", tag)
 	}
@@ -22,7 +22,7 @@ func TestFiles(t *testing.T) {
 	t.Logf("path: %v", archive.Path())
 	_, files := archive.find("Konto", []string{"Versicherung"})
 	for _, file := range files {
-		t.Logf("\"%s\"", file)
+		t.Logf("\"%v\"", file)
 	}
 }
 

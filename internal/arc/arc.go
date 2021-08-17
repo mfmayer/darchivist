@@ -54,24 +54,24 @@ func (arc *Archive) Path() string {
 }
 
 // find returns found tags and files based on filterString and selectedTags
-func (arc *Archive) find(filterString string, selectedTags []string) (tags []string, files []api.FileInfo) {
-	tagSet := StringSet{}
-	dirTagSet := StringSet{}
+func (arc *Archive) find(filterString string, selectedTags []string) (tags []*api.Tag, files []api.FileInfo) {
 	var contains func(s string) bool
 	if filterString != "" {
 		contains = containsFunc(filterString, arc.currentLanguage)
 	}
+	tagSet := TagSet{}
 	walkArchive(arc.path, func(absPath string, relPath string, de fs.DirEntry, err error) error {
 		if err == nil {
-			var fileTagSet StringSet
+			var dirTags StringSet
 			// var dateTime *time.Time
 			// var fileExtension string
 			if de.IsDir() {
-				_, _, dirTagSet = entryDetails(relPath, de, true)
+				_, _, dirTags = entryDetails(relPath, de, true)
 			} else {
-				_, _, fileTagSet = entryDetails(relPath, de, false)
-				if foundAll(selectedTags, dirTagSet, fileTagSet) {
-					tagSet.AddSets(dirTagSet, fileTagSet)
+				_, _, fileTags := entryDetails(relPath, de, false)
+				if foundAll(selectedTags, dirTags, fileTags) {
+					tagSet.Add(dirTags.Slice()...)
+					tagSet.Add(fileTags.Slice()...)
 					if contains == nil || contains(relPath) {
 						// files = append(files, relPath)
 						if fileInfo, err := arc.FileInfo(relPath); err == nil {
@@ -106,8 +106,12 @@ func (arc *Archive) find(filterString string, selectedTags []string) (tags []str
 		}
 		return nil
 	})
-	//tags = tagSet.Slice(filterString, arc.currentLanguage, true)
-	tags = tagSet.Slice(WithContainsFilter(filterString, arc.currentLanguage), WithStringDistanceSort(filterString))
+	for _, selected := range selectedTags {
+		if tag, ok := tagSet[selected]; ok {
+			tag.Selected = true
+		}
+	}
+	tags = tagSet.Slice(WithStringDistanceSort(filterString))
 	return
 }
 
@@ -133,7 +137,7 @@ func (arc *Archive) FileInfo(relPath string) (fileInfo api.FileInfo, err error) 
 	fi, err := arc.osFileInfo(relPath)
 	if err == nil && fi != nil {
 		name, fileExtension := splitExtension(fi.Name())
-		date, tagSet := Tags(relPath, fi.IsDir(), nil)
+		date, tagSet := Tags(relPath, fi.IsDir())
 		fileInfo = api.FileInfo{
 			Name:          name,
 			Path:          relPath,
@@ -268,7 +272,7 @@ func (arc *Archive) InstallAPI(r chi.Router) {
 		// }
 		tags, files := arc.find(rq.TagsFilter, rq.SelectedTags)
 		rs = &api.Response{
-			Tags:  &tags,
+			Tags:  tags,
 			Files: files,
 		}
 		code = http.StatusOK

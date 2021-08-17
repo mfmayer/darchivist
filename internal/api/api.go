@@ -92,6 +92,12 @@ type Language struct {
 	Tag  string `json:"tag"`
 }
 
+type Tag struct {
+	FileCount int    `json:"fileCount,omitempty"`
+	Selected  bool   `json:"selected,omitempty"`
+	Name      string `json:"name,omitempty"`
+}
+
 type Response struct {
 	Notification    *Notification `json:"notification,omitempty"`
 	Logs            []*Log        `json:"logs,omitempty"`
@@ -101,7 +107,7 @@ type Response struct {
 	CurrentLanguage *Language     `json:"currentLanguage,omitempty"`
 	Languages       []Language    `json:"languages,omitempty"`
 	UndoRedoCount   []int         `json:"undoRedoCount,omitempty"`
-	Tags            *[]string     `json:"tags,omitempty"`
+	Tags            []*Tag        `json:"tags,omitempty"`
 	Files           []FileInfo    `json:"files,omitempty"` // File infos
 }
 
