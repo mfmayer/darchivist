@@ -77,8 +77,11 @@ var app = new Vue({
       this.apiFind()
     },
     selectBestMatch: function () {
-      if (this.tags.length > 0) {
-        this.tagSelected(this.tags[0])
+      for (let i=0; i<this.tags.length; ++i) {
+        if (!this.tags[i].selected) {
+          this.tagSelected(this.tags[i].name)
+          break
+        }
       }
     },
     tagDeselected: function (tag) {
@@ -137,20 +140,17 @@ var app = new Vue({
         </q-toolbar-title>
         <main-menu ref="mainMenu" @update:language="languageChanged" @undo="apiUndo" @redo="apiRedo"></main-menu>
       </q-toolbar>
-      <div class="q-pa-xs q-gutter-x-none">
-  
+      <!-- <div class="q-pa-xs q-gutter-x-none">
         <q-icon v-if="selectedTags.length > 0" name="cancel" style="font-size: 24px;" class="q-ma-xs cursor-pointer"
           @click.stop="selectedTags=[]"></q-icon>
         <q-icon v-else name="style" style="font-size: 24px;" class="q-ma-xs"></q-icon>
-        <!-- <q-btn v-if="selectedTags.length > 0" dense flat icon="cancel" @click.stop="selectedTags=[]"></q-btn> -->
-  
         <template v-for="(tag, index) in selectedTags">
           <q-chip dense removable color="secondary" @remove="tagDeselected(tag)">{{tag}}</q-chip>
         </template>
-      </div>
+      </div> -->
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
-      <tag-list :tags="tags" @tagSelected="tagSelected" @modified="refresh"></tag-list>
+      <tag-list :tags="tags" @tagSelected="tagSelected" @tagDeselected="tagDeselected" @modified="refresh"></tag-list>
     </q-drawer>
   
     <q-page-container class="fit no-scroll">

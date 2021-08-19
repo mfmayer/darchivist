@@ -65,24 +65,29 @@ const Tag = {
     <q-item-section>
       <q-item-label lines="1">
         {{tag.name}}
+        <q-badge v-if="tag.fileCount > 0" color="orange">{{tag.fileCount}}</q-badge>
       </q-item-label>
     </q-item-section>
-    <q-item-section clickable side>
-      <q-btn class="gt-xs" size="12px" flat dense round icon="more_vert" @click.stop="">
-        <q-menu>
-          <q-list style="min-width: 100px">
-            <q-item clickable v-close-popup>
-              <q-item-section>{{ $t("ui.assign") }}</q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="showRenamePopup">
-              <q-item-section>{{ $t("ui.rename") }}</q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="confirmDelete=true">
-              <q-item-section>{{ $t("ui.delete") }}</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-btn>
+    <q-item-section side>
+      <div class="text-grey-8 q-gutter-xs">
+        <q-btn v-if="tag.selected" class="gt-xs" size="12px" flat dense round icon="visibility_off" @click.stop="$emit('deselected',tag.name)">
+        </q-btn>
+        <q-btn class="gt-xs" size="12px" flat dense round icon="more_vert" @click.stop="">
+          <q-menu>
+            <q-list style="min-width: 100px">
+              <q-item clickable v-close-popup>
+                <q-item-section>{{ $t("ui.assign") }}</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="showRenamePopup">
+                <q-item-section>{{ $t("ui.rename") }}</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="confirmDelete=true">
+                <q-item-section>{{ $t("ui.delete") }}</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
+      </div>
     </q-item-section>
     <q-popup-proxy cover anchor="top left" no-parent-event ref="renamePopup">
       <q-item>

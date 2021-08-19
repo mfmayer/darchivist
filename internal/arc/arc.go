@@ -60,47 +60,26 @@ func (arc *Archive) find(filterString string, selectedTags []string) (tags []*ap
 		contains = containsFunc(filterString, arc.currentLanguage)
 	}
 	tagSet := TagSet{}
+	tagSet.AddSelectedTags(selectedTags...)
+	var dirTags StringSet
 	walkArchive(arc.path, func(absPath string, relPath string, de fs.DirEntry, err error) error {
 		if err == nil {
-			var dirTags StringSet
 			// var dateTime *time.Time
 			// var fileExtension string
 			if de.IsDir() {
 				_, _, dirTags = entryDetails(relPath, de, true)
+				tagSet.AddTags(dirTags.Slice()...)
 			} else {
 				_, _, fileTags := entryDetails(relPath, de, false)
 				if foundAll(selectedTags, dirTags, fileTags) {
-					tagSet.Add(dirTags.Slice()...)
-					tagSet.Add(fileTags.Slice()...)
+					tagSet.AddFileTags(fileTags.Slice()...)
+					tagSet.AddFileTags(dirTags.Slice()...)
 					if contains == nil || contains(relPath) {
 						// files = append(files, relPath)
 						if fileInfo, err := arc.FileInfo(relPath); err == nil {
 							files = append(files, fileInfo)
 						}
 					}
-
-					// 	if _, err := de.Info(); err == nil {
-					// 		file := api.File{
-					// 			Name:          fi.Name(),
-					// 			FileExtension: fileExtension,
-					// 			Size:          int(fi.Size()),
-					// 			ModTime:       fi.ModTime(),
-					// 		}
-					// 	}
-					// }
-					// if _, err := de.Info(); err == nil {
-					// file := api.File{
-					// 	Name:          fi.Name(),
-					// 	FileExtension: fileExtension,
-					// 	Size:          int(fi.Size()),
-					// 	ModTime:       fi.ModTime(),
-					// }
-					// if dateTime != nil {
-					// 	file.Date = *dateTime
-					// }
-					// files = append(files, file)
-					// files = append(files, relPath)
-					// }
 				}
 			}
 		}
@@ -111,7 +90,7 @@ func (arc *Archive) find(filterString string, selectedTags []string) (tags []*ap
 			tag.Selected = true
 		}
 	}
-	tags = tagSet.Slice(WithStringDistanceSort(filterString))
+	tags = tagSet.Slice(WithContainsFilter(filterString, arc.currentLanguage), WithStringDistanceSort(filterString))
 	return
 }
 

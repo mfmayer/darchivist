@@ -40,7 +40,14 @@ func (ts TagSorter) Len() int {
 }
 
 func (ts TagSorter) Less(i, j int) bool {
-	return ts.less(ts.slice[i], ts.slice[j])
+	iTag := ts.slice[i]
+	jTag := ts.slice[j]
+	if iTag.Selected && !jTag.Selected {
+		return true
+	} else if jTag.Selected && !iTag.Selected {
+		return false
+	}
+	return ts.less(iTag, jTag)
 	// di := levenshtein.ComputeDistance(ts.slice[i].Name, ts.comp)
 	// dj := levenshtein.ComputeDistance(ts.slice[j].Name, ts.comp)
 	// return di < dj
@@ -52,17 +59,30 @@ func (ts TagSorter) Swap(i, j int) {
 	ts.slice[j] = tmp
 }
 
-func (ts TagSet) Add(str ...string) {
+// AddSelected
+func (ts TagSet) AddSelectedTags(str ...string) {
+	ts.AddTags(str...)
 	for _, tagStr := range str {
-		tag, ok := ts[tagStr]
+		ts[tagStr].Selected = true
+	}
+}
+
+func (ts TagSet) AddFileTags(str ...string) {
+	ts.AddTags(str...)
+	for _, tagStr := range str {
+		ts[tagStr].FileCount += 1
+	}
+}
+
+func (ts TagSet) AddTags(str ...string) {
+	for _, tagStr := range str {
+		_, ok := ts[tagStr]
 		if !ok {
-			tag = &api.Tag{
+			tag := &api.Tag{
 				Name: tagStr,
 			}
-			tag.FileCount = tag.FileCount + 1
 			ts[tagStr] = tag
 		}
-		tag.FileCount = tag.FileCount + 1
 	}
 }
 
@@ -98,7 +118,7 @@ func WithStringDistanceSort(comp string) SliceOption {
 			so.sortingLessFunc = func(i *api.Tag, j *api.Tag) bool {
 				di := levenshtein.ComputeDistance(i.Name, comp)
 				dj := levenshtein.ComputeDistance(j.Name, comp)
-				return di < dj
+				return float32(di)/float32(len(i.Name)) < float32(dj)/float32(len(j.Name))
 			}
 		}
 	}
@@ -121,7 +141,7 @@ func (ts TagSet) Slice(opts ...SliceOption) []*api.Tag {
 	{
 		i := 0
 		for _, tag := range ts {
-			if so.containsFilter != nil {
+			if !tag.Selected && so.containsFilter != nil {
 				if !so.containsFilter(tag.Name) {
 					continue
 				}

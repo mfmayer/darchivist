@@ -19,6 +19,9 @@ const Taglist = {
     tagSelected: function (tag) {
       this.$emit('tagSelected', tag)
     },
+    tagDeselected: function (tag) {
+      this.$emit('tagDeselected', tag)
+    },
     tagModified: function (tag) {
       this.$emit('modified')
     }
@@ -32,7 +35,7 @@ const Taglist = {
   <div id="tagList" class="scroll" style="height: calc(100% - 0px); margin-top: 0px;">
     <q-virtual-scroll :items="tags" scroll-target="#tagList" :virtual-scroll-item-size="48">
       <template v-slot="{item, index}">
-        <tag :tag="item" @modified="tagModified(item)" @selected="tagSelected"></tag>
+        <tag :tag="item" @modified="tagModified(item)" @selected="tagSelected" @deselected="tagDeselected"></tag>
       </template>
     </q-virtual-scroll>
   </div>
