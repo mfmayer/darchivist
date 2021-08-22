@@ -77,7 +77,7 @@ var app = new Vue({
       this.apiFind()
     },
     selectBestMatch: function () {
-      for (let i=0; i<this.tags.length; ++i) {
+      for (let i = 0; i < this.tags.length; ++i) {
         if (!this.tags[i].selected) {
           this.tagSelected(this.tags[i].name)
           break
@@ -103,7 +103,7 @@ var app = new Vue({
     languageChanged: function (language) {
       i18n.locale = language
     },
-    showHideLogs: function() {
+    showHideLogs: function () {
       if (this.splitterModel.current == 100) {
         this.splitterModel.current = this.splitterModel.last
       } else {
