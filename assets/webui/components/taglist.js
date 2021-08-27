@@ -38,7 +38,7 @@ const Taglist = {
     <!-- <q-toolbar class="bg-secondary" style="min-height:40px;">
         <q-btn flat round dense icon="filter_list" size="12px" />
       </q-toolbar> -->
-    <div class="q-pa-xs q-gutter-xs full-width">
+    <div class="q-pa-xs q-gutter-xs full-width bg-primary text-white">
       <q-icon v-if="selectedTags.length > 0" name="cancel" style="font-size: 24px;" class="q-ma-xs cursor-pointer"
         @click.stop="selectedTags=[]"></q-icon>
       <q-icon v-else name="style" style="font-size: 24px;" class="q-ma-xs"></q-icon>
