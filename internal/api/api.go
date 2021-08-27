@@ -93,9 +93,9 @@ type Language struct {
 }
 
 type Tag struct {
-	FileCount int    `json:"fileCount,omitempty"`
-	Selected  bool   `json:"selected,omitempty"`
-	Name      string `json:"name,omitempty"`
+	FileCount int    `json:"fileCount"`
+	Selected  bool   `json:"selected"`
+	Name      string `json:"name"`
 }
 
 type Response struct {

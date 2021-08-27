@@ -70,9 +70,9 @@ const Tag = {
     </q-item-section>
     <q-item-section side>
       <div class="text-grey-8 q-gutter-xs">
-        <q-btn v-if="tag.selected" class="gt-xs" size="12px" flat dense round icon="visibility_off" @click.stop="$emit('deselected',tag.name)">
+        <q-btn v-if="tag.selected" class="" size="12px" flat dense round icon="visibility_off" @click.stop="$emit('deselected',tag.name)">
         </q-btn>
-        <q-btn class="gt-xs" size="12px" flat dense round icon="more_vert" @click.stop="">
+        <q-btn class="" size="12px" flat dense round icon="more_vert" @click.stop="">
           <q-menu>
             <q-list style="min-width: 100px">
               <q-item clickable v-close-popup>

@@ -150,7 +150,7 @@ var app = new Vue({
       </div> -->
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
-      <tag-list :tags="tags" @tagSelected="tagSelected" @tagDeselected="tagDeselected" @modified="refresh"></tag-list>
+      <tag-list :tags="tags" :selectedTags="selectedTags" @tagSelected="tagSelected" @tagDeselected="tagDeselected" @modified="refresh"></tag-list>
     </q-drawer>
   
     <q-page-container class="fit no-scroll">

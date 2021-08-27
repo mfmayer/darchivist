@@ -55,10 +55,10 @@ func (arc *Archive) Path() string {
 
 // find returns found tags and files based on filterString and selectedTags
 func (arc *Archive) find(filterString string, selectedTags []string) (tags []*api.Tag, files []api.FileInfo) {
-	var contains func(s string) bool
-	if filterString != "" {
-		contains = containsFunc(filterString, arc.currentLanguage)
-	}
+	// var contains func(s string) bool
+	// if filterString != "" {
+	// 	contains = containsFunc(filterString, arc.currentLanguage)
+	// }
 	tagSet := TagSet{}
 	tagSet.AddSelectedTags(selectedTags...)
 	var dirTags StringSet
@@ -74,11 +74,8 @@ func (arc *Archive) find(filterString string, selectedTags []string) (tags []*ap
 				if foundAll(selectedTags, dirTags, fileTags) {
 					tagSet.AddFileTags(fileTags.Slice()...)
 					tagSet.AddFileTags(dirTags.Slice()...)
-					if contains == nil || contains(relPath) {
-						// files = append(files, relPath)
-						if fileInfo, err := arc.FileInfo(relPath); err == nil {
-							files = append(files, fileInfo)
-						}
+					if fileInfo, err := arc.FileInfo(relPath); err == nil {
+						files = append(files, fileInfo)
 					}
 				}
 			}
