@@ -67,11 +67,11 @@ var app = new Vue({
     },
     apiUndo: function () {
       API.get("undo")/*.then(response => { }).catch(this.apiCallFailed)*/
-      this.apiFind()
+      this.refresh()
     },
     apiRedo: function () {
       API.get("redo")/*.then(response => { }).catch(this.apiCallFailed)*/
-      this.apiFind()
+      this.refresh()
     },
     refresh: function () {
       this.apiFind()
@@ -120,6 +120,7 @@ var app = new Vue({
     },
     selectedTags: {
       handler (newVal, oldVal) {
+        // this.$emit('modified', selectedTags)
         this.refresh()
       }
     }
@@ -132,7 +133,7 @@ var app = new Vue({
         <q-btn flat round dense icon="menu" class="q-mr-sm" @click="showTaglist = !showTaglist"></q-btn>
         <q-toolbar-title>
           <q-input dark dense standout v-model="tagFilter" :placeholder="this.$t('ui.filterTags')"
-            @keydown.enter="selectBestMatch(tagFilter)">
+            @keydown.enter="selectBestMatch()">
             <template v-slot:append>
               <q-icon name="search" />
             </template>
@@ -150,7 +151,7 @@ var app = new Vue({
       </div> -->
     </q-header>
     <q-drawer show-if-above v-model="showTaglist" side="left" behavior="desktop">
-      <tag-list :tags="tags" :selectedTags="selectedTags" @tagSelected="tagSelected" @tagDeselected="tagDeselected" @modified="refresh"></tag-list>
+      <tag-list :tags="tags" :selectedTags="selectedTags" @modified="refresh" @selected="tagSelected" @deselected="tagDeselected" @allDeselected="selectedTags=[]"></tag-list>
     </q-drawer>
   
     <q-page-container class="fit no-scroll">
