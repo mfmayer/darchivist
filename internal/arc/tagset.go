@@ -42,11 +42,11 @@ func (ts TagSorter) Len() int {
 func (ts TagSorter) Less(i, j int) bool {
 	iTag := ts.slice[i]
 	jTag := ts.slice[j]
-	if iTag.Selected && !jTag.Selected {
-		return true
-	} else if jTag.Selected && !iTag.Selected {
-		return false
-	}
+	// if iTag.Selected && !jTag.Selected {
+	// 	return true
+	// } else if jTag.Selected && !iTag.Selected {
+	// 	return false
+	// }
 	return ts.less(iTag, jTag)
 	// di := levenshtein.ComputeDistance(ts.slice[i].Name, ts.comp)
 	// dj := levenshtein.ComputeDistance(ts.slice[j].Name, ts.comp)
@@ -67,6 +67,7 @@ func (ts TagSet) AddSelectedTags(str ...string) {
 	}
 }
 
+// AddFileTags adds tag and increases tag file count
 func (ts TagSet) AddFileTags(str ...string) {
 	ts.AddTags(str...)
 	for _, tagStr := range str {
@@ -74,6 +75,7 @@ func (ts TagSet) AddFileTags(str ...string) {
 	}
 }
 
+// AddTags adds tag without increasing tag file count
 func (ts TagSet) AddTags(str ...string) {
 	for _, tagStr := range str {
 		_, ok := ts[tagStr]

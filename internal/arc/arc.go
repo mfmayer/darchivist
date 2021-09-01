@@ -77,6 +77,9 @@ func (arc *Archive) find(filterString string, selectedTags []string) (tags []*ap
 					if fileInfo, err := arc.FileInfo(relPath); err == nil {
 						files = append(files, fileInfo)
 					}
+				} else {
+					tagSet.AddTags(fileTags.Slice()...)
+					tagSet.AddTags(dirTags.Slice()...)
 				}
 			}
 		}
